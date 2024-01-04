@@ -16,18 +16,33 @@ void GameManager::onClick(float x, float y)
 	{
 		if (SelectedPiece != nullptr)
 		{
-			board->MovePiece(&isWhiteTurn, x, y, SelectedPiece);
+			waitForPromotion = board->MovePiece(&isWhiteTurn, x, y, SelectedPiece);
 			board->DeselectPiece(SelectedPiece);
+			if (!waitForPromotion)
+			{
+				SelectedPiece = nullptr;
+			}
 		}
-		SelectedPiece = board->SelectPiece(isWhiteTurn,x,y);
+		if (!waitForPromotion)
+		{
+			SelectedPiece = board->SelectPiece(isWhiteTurn, x, y);
+		}
 	}
 	else
 	{
-	
+		waitForPromotion = board->ChoosePromotion(SelectedPiece,x,y, &isWhiteTurn);
+		if(!waitForPromotion)
+		{
+			SelectedPiece = nullptr;
+		}
 	}
 }
 
 void GameManager::Display()
 {
 	board->Display();
+	if (waitForPromotion)
+	{
+		board->DisplayPromotion(SelectedPiece);
+	}
 }

@@ -1,17 +1,50 @@
 #include "King.h"
+#include <iostream>
+
 
 void King::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	for(int i = -1;i<2;i++)
 	{
-		for(int y = -1; y < 2; y++)
+		for(int j = -1; j < 2; j++)
 		{
-			if (pos.x + i > 0 && pos.x + i < (*boardCells).size() && pos.y + y > 0 && pos.y + y < (*boardCells)[pos.x + i].size() && (*boardCells)[pos.x + i][pos.y + y]->GetPiece() == nullptr)
+			int x = pos.x + i;
+			int y = pos.y + j;
+			if (
+				x >= 0 && y>= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
+				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+				)
 			{
 				possibleMove.push_back(sf::Vector2i(
-					pos.x + i,
-					pos.y + y)
+					x,
+					y)
 				);
+			}
+		}
+	}
+
+	// roc
+	if(!asMove)
+	{
+		for(int right=-1; right <2; right+= 2)
+		{
+			for(int i = 1; pos.x + (i*right) >= 0 && pos.x + (i * right) < (*boardCells)[pos.y].size();i++)
+			{
+				int x = pos.x + (i * right);
+				int y = pos.y;
+				Piece* piece = (*boardCells)[y][x]->GetPiece();
+				if(piece == nullptr)
+				{
+					continue;
+				}
+				else if(piece->white == white && typeid(*piece) == typeid(Rook) && !piece->asMove)
+				{
+					possibleMove.push_back(sf::Vector2i(
+						x,
+						y)
+					);
+				}
+				break;
 			}
 		}
 	}

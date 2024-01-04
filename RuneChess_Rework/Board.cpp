@@ -5,16 +5,8 @@ Board::~Board()
 {
 }
 
-Board::Board(int width, int height, sf::RenderWindow* window)
-{
-	gameWindow = window;
-	createBoard(width, height);
-	createPieces();
-}
-
 void Board::Display()
 {
-	
 	for(std::vector < Cell* > cellLine : boardCells)
 	{
 		for(Cell* cell : cellLine)
@@ -36,6 +28,67 @@ void Board::Display()
 			}
 		}
 	}
+}
+
+void Board::DisplayPromotion(Piece* SelectedPiece)
+{
+	Cell* cell = SelectedPiece->currentCell;
+	sf::RectangleShape rect = cell->GetRect();
+	sf::Vector2f rectSize = rect.getSize();
+	sf::Vector2f startPos = rect.getPosition();
+	startPos.x += (rectSize.x / 2) - (2*rectSize.x);
+	startPos.y += startPos.y <= 2 * rectSize.y ? rectSize.y : -rectSize.y;
+	sf::RectangleShape background;
+	background.setFillColor(sf::Color::White);
+	background.setPosition(startPos);
+	background.setSize(sf::Vector2f(rectSize.x*4,rectSize.y));
+	gameWindow->draw(background);
+	for(int i = 0; i< SpritePromotion.size();i++)
+	{
+		SpritePromotion[i].setPosition(startPos.x + (i * rectSize.x), startPos.y);
+		gameWindow->draw(SpritePromotion[i]);
+	}
+}
+
+bool Board::ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhite)
+{
+	sf::Vector2f size = sf::Vector2f(pieceTexture.getSize().x / 6, pieceTexture.getSize().y / 2);
+	for (int i = 0; i < SpritePromotion.size(); i++)
+	{
+		sf::Vector2f pos = SpritePromotion[i].getPosition();
+		if (pos.x < x && pos.x + (size.x/2) > x && pos.y < y && pos.y + (size.y/2) > y)
+		{
+			Piece* piece = new Piece();
+			switch(i)
+			{
+				case 0:
+					piece = new Queen();
+					break;
+				case 1:
+					piece = new Bishop();
+					break;
+				case 2:
+					piece = new Knight();
+					break;
+				case 3:
+					piece = new Rook();
+					break;
+			}
+			piece->pieceSprite = SpritePromotion[i];
+			piece->pos = SelectedPiece->pos;
+			piece->asMove = true;
+			piece->white = SelectedPiece->white;
+			piece->currentCell = SelectedPiece->currentCell;
+			SelectedPiece->currentCell->SetPiece(piece);
+			if (isWhite != nullptr)
+			{
+				*isWhite = !(*isWhite);
+			}
+			SpritePromotion.clear();
+			return false;
+		}
+	}
+	return true;
 }
 
 Piece* Board::SelectPiece(bool isWhite, float x, float y)
@@ -71,7 +124,6 @@ void Board::DeselectPiece(Piece* piece)
 {
 	piece->pieceSprite.setColor(sf::Color(255, 255, 255, 255));
 	piece->possibleMove.clear();
-	piece = nullptr;
 	for (std::vector < Cell* > cellLine : boardCells)
 	{
 		for (Cell* cell : cellLine)
@@ -84,7 +136,7 @@ void Board::DeselectPiece(Piece* piece)
 	}
 }
 
-void Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
+bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 {
 	for (int line =0; line < boardCells.size(); line++)
 	{
@@ -95,18 +147,50 @@ void Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 			sf::Vector2f size = rect.getSize();
 			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y && boardCells[line][col]->GetMove())
 			{
-				SelectedPiece->pos = sf::Vector2i(col, line);
+				int column = col;
+				//roc
+				if(boardCells[line][col]->GetPiece() != nullptr && SelectedPiece->white == boardCells[line][col]->GetPiece()->white)
+				{
+					int colSelected = SelectedPiece->pos.x;
+					column = col < colSelected ? ++column : --column;
+					Piece* piece = boardCells[line][col]->GetPiece();
+
+					SelectedPiece->asMove = true;
+
+					piece->pos.x = col < colSelected ? SelectedPiece->pos.x - 1 : SelectedPiece->pos.x + 1;
+
+					piece->currentCell = boardCells[piece->pos.y][piece->pos.x];
+					boardCells[line][col]->SetPiece(nullptr);
+					boardCells[piece->pos.y][piece->pos.x]->SetPiece(piece);
+				}
+				SelectedPiece->pos = sf::Vector2i(column, line);
 				SelectedPiece->asMove = true;
-				boardCells[line][col]->SetPiece(SelectedPiece);
+
+				boardCells[line][column]->SetPiece(SelectedPiece);
 				SelectedPiece->currentCell->SetPiece(nullptr);
-				SelectedPiece->currentCell = boardCells[line][col];
+
+				SelectedPiece->currentCell = boardCells[line][column];
+
+				verifyBoardControl();
+
+				if(typeid(*SelectedPiece) == typeid(Pawn))
+				{
+					if((SelectedPiece->white && SelectedPiece->pos.y + 1 == boardSize.y)
+					|| (!SelectedPiece->white && SelectedPiece->pos.y == 0))
+					{
+						CreateSpritePromotion(SelectedPiece);
+						return true;
+					}
+				}
 				if (isWhite != nullptr)
 				{
 					*isWhite = !(*isWhite);
 				}
+				return false;
 			}
 		}
 	}
+	return false;
 }
 
 void Board::createBoard(int width, int height)
@@ -169,10 +253,15 @@ void Board::createPieces()
 			Piece* piece = new Piece();
 			switch (toupper(c))
 			{
+			case('K'):
+				piece = new King();
+				break;
 			case('Q'):
+				piece = new Queen();
 				spriteX = 1;
 				break;
 			case('B'):
+				piece = new Bishop;
 				spriteX = 2;
 				break;
 			case('N'):
@@ -180,9 +269,10 @@ void Board::createPieces()
 				spriteX = 3;
 				break;
 			case('R'):
+				piece = new Rook;
 				spriteX = 4;
 				break;
-			case('P'):
+			default:
 				piece = new Pawn();
 				spriteX = 5;
 				break;
@@ -197,14 +287,6 @@ void Board::createPieces()
 			piece->white = isWhite;
 			piece->pos = sf::Vector2i(col, line);
 			piece->currentCell = boardCells[line][col];
-			if (isupper(c))
-			{
-				blackPiece.push_back(piece);
-			}
-			else
-			{
-				whitePiece.push_back(piece);
-			}
 			boardCells[line][col]->SetPiece(piece);
 			col++;
 		}
@@ -216,5 +298,36 @@ void Board::SetTexture()
 	if (!pieceTexture.loadFromFile("img/Pieces.png"))
 	{
 		std::cout << "No file found for textures" << std::endl;
+	}
+}
+
+void Board::CreateSpritePromotion(Piece* selectedPiece)
+{
+	int col{ 0 };
+	int line{ 0 };
+	std::vector<sf::Sprite> sprites(4);
+	float spriteHeight = pieceTexture.getSize().y / 2;
+	float spriteWidth = pieceTexture.getSize().x / 6;
+	float spriteY = selectedPiece->white ? 0 : spriteHeight;
+	for (int i = 0 ; i < sprites.size() ;i++)
+	{
+		float spriteX = spriteWidth*(1+i);
+		sf::Sprite sprite;
+		sprite.setTexture(pieceTexture);
+		sprite.setTextureRect(sf::IntRect(spriteX, spriteY, spriteWidth, spriteHeight));
+		sprite.setScale(sf::Vector2<float>(0.5, 0.5));
+		sprites[i] = sprite;
+	}
+	SpritePromotion = sprites;
+}
+
+void Board::verifyBoardControl()
+{
+	for (int line = 0; line < boardCells.size(); line++)
+	{
+		for (int col = 0; col < boardCells[line].size(); col++)
+		{
+			boardCells[line][col]->defineControl(line, col, &boardCells);
+		}
 	}
 }
