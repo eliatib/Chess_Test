@@ -1,4 +1,4 @@
-#include "Cell.h"
+﻿#include "Cell.h"
 #include "Pawn.h"
 #include "Knight.h"
 #include "King.h"
@@ -26,8 +26,17 @@ Cell::Cell(sf::RectangleShape rectRef)
 
 void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >* boardCells)
 {
+	// change in verifyCheck
+	// si true : verifyCheckMate
 	controlled[0] = false;
 	controlled[1] = false;
+	accessibleOnlyKing = true;
+
+	if (piece != nullptr)
+	{
+		accessibleOnlyKing = false;
+	}
+
 	//R,Q,K
 	for (int right = -1; right < 2; right++)
 	{
@@ -49,6 +58,10 @@ void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >*
 					else if (typeid(*piece) == typeid(Rook) || typeid(*piece) == typeid(Queen) || (i == 1 && typeid(*piece) == typeid(King)))
 					{
 						controlled[piece->white ? 0 : 1] = true;
+						if (typeid(*piece) != typeid(King))
+						{
+							accessibleOnlyKing = false;
+						}
 					}
 					break;
 				}
@@ -76,10 +89,13 @@ void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >*
 				else if (typeid(*piece) == typeid(Bishop) || typeid(*piece) == typeid(Queen) || (i == 1 && (typeid(*piece) == typeid(King) || typeid(*piece) == typeid(Pawn))))
 				{
 					controlled[piece->white ? 0 : 1] = true;
+					if (typeid(*piece) != typeid(King))
+					{
+						accessibleOnlyKing = false;
+					}
 				}
 				break;
 			}
-
 		}
 	}
 	//N
@@ -89,8 +105,8 @@ void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >*
 		if (y >= 0 && y < (*boardCells).size())
 		{
 			int dec = std::abs(i) == 2 ? 1 : std::abs(i) == 1 ? 2 : -1;
-			
-			for (int j = -1*dec; j <= 1 * dec; j = j + (2 * dec))
+
+			for (int j = -1 * dec; j <= 1 * dec; j = j + (2 * dec))
 			{
 				int x = col + j;
 
@@ -104,16 +120,12 @@ void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >*
 					else if (typeid(*piece) == typeid(Knight))
 					{
 						controlled[piece->white ? 0 : 1] = true;
+						accessibleOnlyKing = false;
 					}
 					break;
 				}
 			}
 		}
-	}
-
-	if(typeid(*piece) == typeid(King))
-	{
-		verifyCheckMate(piece->pos.y,piece->pos.x,boardCells);
 	}
 }
 
@@ -129,6 +141,10 @@ void Cell::SetRect(sf::RectangleShape newRect)
 
 bool Cell::verifyCheckMate(int line, int col, std::vector< std::vector< Cell* > >* boardCells)
 {
+	//vérifier tous les mouvement possible des pièces de la couleur en check
+	// piece->TestMovement()
+	//verifyIfStillCheck()
+	//si non, keep movement en mémoire pour le réutiliser
 	bool isCheckMate = true;
 	// King can move ?
 	for (int i = -1; i < 2; i++)
@@ -139,18 +155,31 @@ bool Cell::verifyCheckMate(int line, int col, std::vector< std::vector< Cell* > 
 			int y = line + j;
 			if (
 				x >= 0 && y >= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
-				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != GetPiece()->white) 
+				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != GetPiece()->white)
 				&& GetPiece()->white ? !(*boardCells)[y][x]->getControlled()[1] : !(*boardCells)[y][x]->getControlled()[0]
 				)
 			{
 				isCheckMate = false;
-				//rajouter move dans une list
 			}
 		}
 	}
 
+	for (int lline = 0; lline < boardCells->size(); lline++)
+	{
+		for (int ccol = 0; ccol < (*boardCells)[line].size(); ccol++)
+		{
+			if (lline != line && ccol != col)
+			{
+				Piece* otherPiece = (*boardCells)[lline][ccol]->GetPiece();
+				if (otherPiece != nullptr && otherPiece->white == piece->white)
+				{
+				}
+			}
+		}
+	}
 	//other piece have access to case to stop the check
 
+	return isCheckMate;
 }
 
 void Cell::SetMove(bool IsAMove)
@@ -182,4 +211,3 @@ std::vector<bool> Cell::getControlled()
 {
 	return controlled;
 }
-

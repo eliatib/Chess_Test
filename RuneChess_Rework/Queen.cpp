@@ -17,7 +17,7 @@ void Queen::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 					int y = pos.y + (i * down);
 					if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
 					{
-						possibleMove.push_back(sf::Vector2i(
+						possibleMoves.push_back(sf::Vector2i(
 							x,
 							y)
 						);
@@ -47,7 +47,7 @@ void Queen::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 				int y = pos.y + (i * down);
 				if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
 				{
-					possibleMove.push_back(sf::Vector2i(
+					possibleMoves.push_back(sf::Vector2i(
 						x,
 						y)
 					);
@@ -59,7 +59,6 @@ void Queen::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 				}
 				break;
 			}
-
 		}
 	}
 }

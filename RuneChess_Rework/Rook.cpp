@@ -6,17 +6,17 @@ void Rook::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 	{
 		for (int down = -1; down < 2; down++)
 		{
-			if((right != 0 || down != 0) && (right == 0 ||down == 0))
+			if ((right != 0 || down != 0) && (right == 0 || down == 0))
 			{
-				for (int i = 1; 
-					pos.y + (i*down) >= 0 && pos.y + (i * down) < boardCells->size() && pos.x + (i*right) >= 0 && pos.x + (i * right) < (*boardCells)[pos.y + (i * down)].size();
+				for (int i = 1;
+					pos.y + (i * down) >= 0 && pos.y + (i * down) < boardCells->size() && pos.x + (i * right) >= 0 && pos.x + (i * right) < (*boardCells)[pos.y + (i * down)].size();
 					i++)
 				{
 					int x = pos.x + (i * right);
 					int y = pos.y + (i * down);
 					if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
 					{
-						possibleMove.push_back(sf::Vector2i(
+						possibleMoves.push_back(sf::Vector2i(
 							x,
 							y)
 						);

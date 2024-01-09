@@ -16,7 +16,7 @@ void Knight::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 				{
 					if (x >= 0 && x < (*boardCells)[y].size() && ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white))
 					{
-						possibleMove.push_back(sf::Vector2i(
+						possibleMoves.push_back(sf::Vector2i(
 							x,
 							y
 						));
