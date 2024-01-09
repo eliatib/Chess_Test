@@ -13,6 +13,7 @@ void King::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 			if (
 				x >= 0 && y>= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
 				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+				&& white ? !(*boardCells)[y][x]->getControlled()[1] : ! (*boardCells)[y][x]->getControlled()[0]
 				)
 			{
 				possibleMove.push_back(sf::Vector2i(

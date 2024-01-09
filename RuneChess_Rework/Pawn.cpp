@@ -1,4 +1,5 @@
 #include "Pawn.h"
+#include "King.h"
 
 void Pawn::ShowMove(std::vector< std::vector< Cell* > >* boardCells)
 {
@@ -20,10 +21,10 @@ void Pawn::ShowMove(std::vector< std::vector< Cell* > >* boardCells)
 				(i==0 && piece == nullptr) 
 				|| (i != 0 && piece != nullptr && piece->white != white)
 				) 
-			possibleMove.push_back(sf::Vector2i(
+				possibleMove.push_back(sf::Vector2i(
 				pos.x + i,
-				pos.y + move
-			));
+				pos.y + move));
+
 		}
 	}
 }

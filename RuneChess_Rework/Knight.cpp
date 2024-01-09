@@ -1,4 +1,5 @@
 #include "Knight.h"
+#include "King.h"
 
 void Knight::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 {

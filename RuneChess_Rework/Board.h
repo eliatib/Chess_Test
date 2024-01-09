@@ -38,6 +38,8 @@ private:
 	void CreateSpritePromotion(Piece* selectedPiece);
 	void verifyBoardControl();
 	std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+	Piece* inCheckPiece;
+	std::vector< Piece* > kingsPiece;
 	std::vector< std::vector< Cell* > > boardCells;
 	sf::Texture pieceTexture;
 	std::vector<sf::Sprite> SpritePromotion;

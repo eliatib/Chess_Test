@@ -110,6 +110,11 @@ void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >*
 			}
 		}
 	}
+
+	if(typeid(*piece) == typeid(King))
+	{
+		verifyCheckMate(piece->pos.y,piece->pos.x,boardCells);
+	}
 }
 
 void Cell::SetPiece(Piece* newPiece)
@@ -120,6 +125,32 @@ void Cell::SetPiece(Piece* newPiece)
 void Cell::SetRect(sf::RectangleShape newRect)
 {
 	rect = newRect;
+}
+
+bool Cell::verifyCheckMate(int line, int col, std::vector< std::vector< Cell* > >* boardCells)
+{
+	bool isCheckMate = true;
+	// King can move ?
+	for (int i = -1; i < 2; i++)
+	{
+		for (int j = -1; j < 2; j++)
+		{
+			int x = col + i;
+			int y = line + j;
+			if (
+				x >= 0 && y >= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
+				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != GetPiece()->white) 
+				&& GetPiece()->white ? !(*boardCells)[y][x]->getControlled()[1] : !(*boardCells)[y][x]->getControlled()[0]
+				)
+			{
+				isCheckMate = false;
+				//rajouter move dans une list
+			}
+		}
+	}
+
+	//other piece have access to case to stop the check
+
 }
 
 void Cell::SetMove(bool IsAMove)

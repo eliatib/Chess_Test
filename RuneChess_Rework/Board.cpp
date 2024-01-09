@@ -182,6 +182,15 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 						return true;
 					}
 				}
+				for(int i = 0;i<kingsPiece.size();i++)
+				{
+					if(kingsPiece[i]->white? kingsPiece[i]->currentCell->getControlled()[1] : kingsPiece[i]->currentCell->getControlled()[0])
+					{
+						inCheckPiece = kingsPiece[i];
+						sf::Vector2i pos = inCheckPiece->pos;
+						inCheckPiece->currentCell->verifyCheckMate(pos.y,pos.x,&boardCells);
+					}
+				}
 				if (isWhite != nullptr)
 				{
 					*isWhite = !(*isWhite);
@@ -287,6 +296,10 @@ void Board::createPieces()
 			piece->white = isWhite;
 			piece->pos = sf::Vector2i(col, line);
 			piece->currentCell = boardCells[line][col];
+			if(typeid(*piece) == typeid(King))
+			{
+				kingsPiece.push_back(piece);
+			}
 			boardCells[line][col]->SetPiece(piece);
 			col++;
 		}
