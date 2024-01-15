@@ -1,6 +1,6 @@
 #include "Bishop.h"
 
-void Bishop::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
+void Bishop::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	for (int right = -1; right < 2; right += 2)
 	{

@@ -1,7 +1,7 @@
 #include "Knight.h"
 #include "King.h"
 
-void Knight::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
+void Knight::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	for (int i = -2; i <= 2; i++)
 	{

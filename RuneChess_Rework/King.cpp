@@ -1,7 +1,7 @@
 #include "King.h"
 #include <iostream>
 
-void King::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
+void King::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	for (int i = -1; i < 2; i++)
 	{
@@ -12,7 +12,6 @@ void King::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
 			if (
 				x >= 0 && y >= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
 				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
-				&& white ? !(*boardCells)[y][x]->getControlled()[1] : !(*boardCells)[y][x]->getControlled()[0]
 				)
 			{
 				possibleMoves.push_back(sf::Vector2i(

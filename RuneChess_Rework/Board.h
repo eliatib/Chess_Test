@@ -23,9 +23,8 @@ public:
 		gameWindow = window;
 		createBoard(width, height);
 		createPieces();
-		verifyBoardControl();
 	}
-	void Display();
+	void Display(Piece* SelectedPiece);
 	void DisplayPromotion(Piece* SelectedPiece);
 	bool ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhite);
 	Piece* SelectPiece(bool isWhite, float x, float y);
@@ -36,7 +35,7 @@ private:
 	void createPieces();
 	void SetTexture();
 	void CreateSpritePromotion(Piece* selectedPiece);
-	void verifyBoardControl();
+	bool verifyKingNotinCheck(Piece* king);
 	std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 	Piece* inCheckPiece;
 	std::vector< Piece* > kingsPiece;
@@ -49,4 +48,3 @@ private:
 	float cellSize;
 };
 #endif
-

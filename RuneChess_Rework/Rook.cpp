@@ -1,6 +1,6 @@
 #include "Rook.h"
 
-void Rook::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
+void Rook::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	for (int right = -1; right < 2; right++)
 	{

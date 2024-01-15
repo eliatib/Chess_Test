@@ -1,7 +1,7 @@
 #include "Pawn.h"
 #include "King.h"
 
-void Pawn::ShowMove(std::vector< std::vector< Cell* > >* boardCells)
+void Pawn::CalculatePossibleMove(std::vector< std::vector< Cell* > >* boardCells)
 {
 	int move = white ? 1 : -1;
 	if (!asMove && (*boardCells)[pos.y + (move * 2)][pos.x]->GetPiece() == nullptr && (*boardCells)[pos.y + (move)][pos.x]->GetPiece() == nullptr)

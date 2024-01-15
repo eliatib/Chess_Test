@@ -1,15 +1,16 @@
-#include "Board.h"
+﻿#include "Board.h"
 
 Board::~Board()
 {
 }
 
-void Board::Display()
+void Board::Display(Piece* SelectedPiece)
 {
-	for (std::vector < Cell* > cellLine : boardCells)
+	for (int line = 0; line < boardCells.size(); line++)
 	{
-		for (Cell* cell : cellLine)
+		for (int col = 0; col < boardCells[line].size(); col++)
 		{
+			Cell* cell = boardCells[line][col];
 			//Squares
 			gameWindow->draw(cell->GetRect());
 			//Pieces
@@ -21,9 +22,14 @@ void Board::Display()
 				gameWindow->draw(sprite);
 			}
 			//Move
-			if (cell->GetMove() == true)
+			if (SelectedPiece != nullptr)
 			{
-				gameWindow->draw(cell->GetCircle());
+				sf::Vector2i pos = sf::Vector2i(col, line);
+				std::vector< sf::Vector2i > moves = SelectedPiece->possibleMoves;
+				if (std::find(moves.begin(), moves.end(), pos) != moves.end())
+				{
+					gameWindow->draw(cell->GetCircle());
+				}
 			}
 		}
 	}
@@ -105,11 +111,7 @@ Piece* Board::SelectPiece(bool isWhite, float x, float y)
 				if (piece != nullptr && piece->white == isWhite)
 				{
 					piece->pieceSprite.setColor(sf::Color(255, 255, 255, 128));
-					piece->ShowMove(&boardCells);
-					for (sf::Vector2i move : piece->possibleMoves)
-					{
-						boardCells[move.y][move.x]->SetMove(true);
-					}
+					piece->CalculatePossibleMove(&boardCells);
 					return piece;
 				}
 				return nullptr;
@@ -123,16 +125,6 @@ void Board::DeselectPiece(Piece* piece)
 {
 	piece->pieceSprite.setColor(sf::Color(255, 255, 255, 255));
 	piece->possibleMoves.clear();
-	for (std::vector < Cell* > cellLine : boardCells)
-	{
-		for (Cell* cell : cellLine)
-		{
-			if (cell->GetMove())
-			{
-				cell->SetMove(false);
-			}
-		}
-	}
 }
 
 bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
@@ -144,7 +136,7 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 			sf::RectangleShape rect = boardCells[line][col]->GetRect();
 			sf::Vector2f pos = rect.getPosition();
 			sf::Vector2f size = rect.getSize();
-			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y && boardCells[line][col]->GetMove())
+			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y && SelectedPiece->pos.x == col && SelectedPiece->pos.y == line)
 			{
 				int column = col;
 				//roc
@@ -170,8 +162,6 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 
 				SelectedPiece->currentCell = boardCells[line][column];
 
-				verifyBoardControl();
-
 				if (typeid(*SelectedPiece) == typeid(Pawn))
 				{
 					if ((SelectedPiece->white && SelectedPiece->pos.y + 1 == boardSize.y)
@@ -181,15 +171,14 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece)
 						return true;
 					}
 				}
+
 				for (int i = 0; i < kingsPiece.size(); i++)
 				{
-					if (*isWhite != kingsPiece[i]->white &&
-						kingsPiece[i]->white ? kingsPiece[i]->currentCell->getControlled()[1] : kingsPiece[i]->currentCell->getControlled()[0])
+					if (*isWhite != kingsPiece[i]->white)
 					{
-						inCheckPiece = kingsPiece[i];
-						inCheckPiece->currentCell->verifyCheckMate(inCheckPiece, &boardCells);
 					}
 				}
+
 				if (isWhite != nullptr)
 				{
 					*isWhite = !(*isWhite);
@@ -333,13 +322,90 @@ void Board::CreateSpritePromotion(Piece* selectedPiece)
 	SpritePromotion = sprites;
 }
 
-void Board::verifyBoardControl()
+bool Board::verifyKingNotinCheck(Piece* king)
 {
-	for (int line = 0; line < boardCells.size(); line++)
+	int line = king->pos.y;
+	int col = king->pos.x;
+	//R,Q
+	for (int right = -1; right < 2; right++)
 	{
-		for (int col = 0; col < boardCells[line].size(); col++)
+		for (int down = -1; down < 2; down++)
 		{
-			boardCells[line][col]->defineControl(line, col, &boardCells);
+			if ((right != 0 || down != 0) && (right == 0 || down == 0))
+			{
+				for (int i = 1;
+					line + (i * down) >= 0 && line + (i * down) < boardCells.size() && col + (i * right) >= 0 && col + (i * right) < boardCells[line + (i * down)].size();
+					i++)
+				{
+					int y = line + (i * down);
+					int x = col + (i * right);
+					Piece* piece = boardCells[y][x]->GetPiece();
+					if (piece == nullptr)
+					{
+						continue;
+					}
+					else if ((typeid(*piece) == typeid(Rook) || typeid(*piece) == typeid(Queen)) && piece->white != king->white)
+					{
+						return true;
+					}
+					break;
+				}
+			}
 		}
 	}
+	//P,B,Q
+	for (int right = -1; right < 2; right += 2)
+	{
+		for (int down = -1; down < 2; down += 2)
+		{
+			for (
+				int i = 1;
+				line + (i * down) >= 0 && line + (i * down) < boardCells.size() && col + (i * right) >= 0 && col + (i * right) < boardCells[line + (i * down)].size();
+				i++
+				)
+			{
+				int x = col + (i * right);
+				int y = line + (i * down);
+				Piece* piece = boardCells[y][x]->GetPiece();
+				if (piece == nullptr)
+				{
+					continue;
+				}
+				else if (typeid(*piece) == typeid(Bishop) || typeid(*piece) == typeid(Queen) || (i == 1 && typeid(*piece) == typeid(Pawn) && down == piece->white ? 1 : -1) && piece->white != king->white) // rajout règle pion pour verif couleur et pos pa rapport au roi
+				{
+					return true;
+				}
+				break;
+			}
+		}
+	}
+	//N
+	for (int i = -2; i <= 2; i++)
+	{
+		int y = line + i;
+		if (y >= 0 && y < boardCells.size())
+		{
+			int dec = std::abs(i) == 2 ? 1 : std::abs(i) == 1 ? 2 : -1;
+
+			for (int j = -1 * dec; j <= 1 * dec; j = j + (2 * dec))
+			{
+				int x = col + j;
+
+				if (x >= 0 && x < boardCells[y].size())
+				{
+					Piece* piece = boardCells[y][x]->GetPiece();
+					if (piece == nullptr)
+					{
+						continue;
+					}
+					else if (typeid(*piece) == typeid(Knight) && piece->white != king->white)
+					{
+						return true;
+					}
+					break;
+				}
+			}
+		}
+	}
+	return false;
 }

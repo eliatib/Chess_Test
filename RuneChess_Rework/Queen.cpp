@@ -1,6 +1,6 @@
 #include "Queen.h"
 
-void Queen::ShowMove(std::vector<std::vector<Cell*>>* boardCells)
+void Queen::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 {
 	//Rook moves
 	for (int right = -1; right < 2; right++)

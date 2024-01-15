@@ -3,7 +3,7 @@
 GameManager::GameManager(sf::RenderWindow* window)
 {
 	currentWindow = window;
-	board = new Board(8,8, window);	
+	board = new Board(8, 8, window);
 }
 
 GameManager::~GameManager()
@@ -12,7 +12,7 @@ GameManager::~GameManager()
 
 void GameManager::onClick(float x, float y)
 {
-	if(!waitForPromotion)
+	if (!waitForPromotion)
 	{
 		if (SelectedPiece != nullptr)
 		{
@@ -30,8 +30,8 @@ void GameManager::onClick(float x, float y)
 	}
 	else
 	{
-		waitForPromotion = board->ChoosePromotion(SelectedPiece,x,y, &isWhiteTurn);
-		if(!waitForPromotion)
+		waitForPromotion = board->ChoosePromotion(SelectedPiece, x, y, &isWhiteTurn);
+		if (!waitForPromotion)
 		{
 			SelectedPiece = nullptr;
 		}
@@ -40,7 +40,7 @@ void GameManager::onClick(float x, float y)
 
 void GameManager::Display()
 {
-	board->Display();
+	board->Display(SelectedPiece);
 	if (waitForPromotion)
 	{
 		board->DisplayPromotion(SelectedPiece);

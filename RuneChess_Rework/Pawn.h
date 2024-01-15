@@ -4,7 +4,5 @@
 class Pawn : public Piece
 {
 public:
-	void ShowMove(std::vector< std::vector< Cell* > >* boardCells);
-
+	void CalculatePossibleMove(std::vector< std::vector< Cell* > >* boardCells);
 };
-
