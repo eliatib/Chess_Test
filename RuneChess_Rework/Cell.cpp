@@ -22,104 +22,7 @@ Cell::Cell(sf::RectangleShape rectRef)
 	moveCircle = circle;
 	piece = nullptr;
 }
-/*
-void Cell::defineControl(int line, int col, std::vector< std::vector< Cell* > >* boardCells)
-{
-	// change in verifyCheck
-	// si true : verifyCheckMate
 
-	//R,Q,K
-	for (int right = -1; right < 2; right++)
-	{
-		for (int down = -1; down < 2; down++)
-		{
-			if ((right != 0 || down != 0) && (right == 0 || down == 0))
-			{
-				for (int i = 1;
-					line + (i * down) >= 0 && line + (i * down) < boardCells->size() && col + (i * right) >= 0 && col + (i * right) < (*boardCells)[line + (i * down)].size();
-					i++)
-				{
-					int y = line + (i * down);
-					int x = col + (i * right);
-					Piece* piece = (*boardCells)[y][x]->GetPiece();
-					if (piece == nullptr)
-					{
-						continue;
-					}
-					else if (typeid(*piece) == typeid(Rook) || typeid(*piece) == typeid(Queen) || (i == 1 && typeid(*piece) == typeid(King)))
-					{
-						controlled[piece->white ? 0 : 1] = true;
-						if (typeid(*piece) != typeid(King))
-						{
-							accessibleOnlyKing = false;
-						}
-					}
-					break;
-				}
-			}
-		}
-	}
-	//K,P,B,Q
-	for (int right = -1; right < 2; right += 2)
-	{
-		for (int down = -1; down < 2; down += 2)
-		{
-			for (
-				int i = 1;
-				line + (i * down) >= 0 && line + (i * down) < boardCells->size() && col + (i * right) >= 0 && col + (i * right) < (*boardCells)[line + (i * down)].size();
-				i++
-				)
-			{
-				int x = col + (i * right);
-				int y = line + (i * down);
-				Piece* piece = (*boardCells)[y][x]->GetPiece();
-				if (piece == nullptr)
-				{
-					continue;
-				}
-				else if (typeid(*piece) == typeid(Bishop) || typeid(*piece) == typeid(Queen) || (i == 1 && (typeid(*piece) == typeid(King) || typeid(*piece) == typeid(Pawn))))
-				{
-					controlled[piece->white ? 0 : 1] = true;
-					if (typeid(*piece) != typeid(King))
-					{
-						accessibleOnlyKing = false;
-					}
-				}
-				break;
-			}
-		}
-	}
-	//N
-	for (int i = -2; i <= 2; i++)
-	{
-		int y = line + i;
-		if (y >= 0 && y < (*boardCells).size())
-		{
-			int dec = std::abs(i) == 2 ? 1 : std::abs(i) == 1 ? 2 : -1;
-
-			for (int j = -1 * dec; j <= 1 * dec; j = j + (2 * dec))
-			{
-				int x = col + j;
-
-				if (x >= 0 && x < (*boardCells)[y].size())
-				{
-					Piece* piece = (*boardCells)[y][x]->GetPiece();
-					if (piece == nullptr)
-					{
-						continue;
-					}
-					else if (typeid(*piece) == typeid(Knight))
-					{
-						controlled[piece->white ? 0 : 1] = true;
-						accessibleOnlyKing = false;
-					}
-					break;
-				}
-			}
-		}
-	}
-}
-*/
 void Cell::SetPiece(Piece* newPiece)
 {
 	piece = newPiece;
@@ -128,6 +31,16 @@ void Cell::SetPiece(Piece* newPiece)
 void Cell::SetRect(sf::RectangleShape newRect)
 {
 	rect = newRect;
+}
+
+bool Cell::GetShowMove()
+{
+	return showMove;
+}
+
+void Cell::SetShowMove(bool showingMove)
+{
+	showMove = showingMove;
 }
 
 Piece* Cell::GetPiece()

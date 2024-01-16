@@ -21,6 +21,7 @@ private:
 	bool waitForPromotion = false;
 	Piece* SelectedPiece;
 	Board* board = nullptr;
+	bool checkmate = false;
 	sf::RenderWindow* currentWindow;
 	std::vector< std::vector< Cell > > cells;
 	std::vector < sf::Sprite > boardPieces;

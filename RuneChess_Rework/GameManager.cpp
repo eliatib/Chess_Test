@@ -16,7 +16,7 @@ void GameManager::onClick(float x, float y)
 	{
 		if (SelectedPiece != nullptr)
 		{
-			waitForPromotion = board->MovePiece(&isWhiteTurn, x, y, SelectedPiece);
+			waitForPromotion = board->MovePiece(&isWhiteTurn, x, y, SelectedPiece, checkmate);
 			board->DeselectPiece(SelectedPiece);
 			if (!waitForPromotion)
 			{
@@ -30,11 +30,16 @@ void GameManager::onClick(float x, float y)
 	}
 	else
 	{
-		waitForPromotion = board->ChoosePromotion(SelectedPiece, x, y, &isWhiteTurn);
+		waitForPromotion = board->ChoosePromotion(SelectedPiece, x, y, &isWhiteTurn, checkmate);
 		if (!waitForPromotion)
 		{
 			SelectedPiece = nullptr;
 		}
+	}
+
+	if(checkmate)
+	{
+		std::cout << "checkmate" << std::endl;
 	}
 }
 

@@ -1,5 +1,4 @@
 #include "Pawn.h"
-#include "King.h"
 
 void Pawn::CalculatePossibleMove(std::vector< std::vector< Cell* > >* boardCells)
 {

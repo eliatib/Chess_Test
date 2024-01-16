@@ -18,24 +18,22 @@ class Board
 public:
 	Board() {};
 	~Board();
-	Board(int width, int height, sf::RenderWindow* window)
-	{
-		gameWindow = window;
-		createBoard(width, height);
-		createPieces();
-	}
+	Board(int width, int height, sf::RenderWindow* window);
+
 	void Display(Piece* SelectedPiece);
 	void DisplayPromotion(Piece* SelectedPiece);
-	bool ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhite);
+	bool ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhite, bool& checkmate);
 	Piece* SelectPiece(bool isWhite, float x, float y);
 	void DeselectPiece(Piece* piece);
-	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece);
+	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate);
 private:
 	void createBoard(int width, int height);
 	void createPieces();
 	void SetTexture();
 	void CreateSpritePromotion(Piece* selectedPiece);
-	bool verifyKingNotinCheck(Piece* king);
+	bool VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i pos, sf::Vector2i move);
+	bool VerifyAllMove(Piece* king);
+	void InitializeMoves();
 	std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 	Piece* inCheckPiece;
 	std::vector< Piece* > kingsPiece;
