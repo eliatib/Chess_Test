@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Pieces">
       <UniqueIdentifier>{776c95c1-76f6-4055-8090-318f5f51add8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Runes">
+      <UniqueIdentifier>{ede519c3-adf9-4de5-a9bb-995711836148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Runes">
+      <UniqueIdentifier>{d62af498-b89a-4ead-a220-dff63143651f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -54,6 +60,15 @@
     <ClCompile Include="Pawn.cpp">
       <Filter>Source Files\Pieces</Filter>
     </ClCompile>
+    <ClCompile Include="Rune.cpp">
+      <Filter>Source Files\Runes</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBubble.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SacrificialPawn.cpp">
+      <Filter>Source Files\Runes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Piece.h">
@@ -85,6 +100,15 @@
     </ClInclude>
     <ClInclude Include="Pawn.h">
       <Filter>Header Files\Pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="Rune.h">
+      <Filter>Header Files\Runes</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBubble.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SacrificialPawn.h">
+      <Filter>Header Files\Runes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

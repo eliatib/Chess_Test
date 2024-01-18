@@ -39,6 +39,7 @@ private:
 	std::vector< Piece* > kingsPiece;
 	std::vector< std::vector< Cell* > > boardCells;
 	sf::Texture pieceTexture;
+	sf::Texture RuneTexture;
 	std::vector<sf::Sprite> SpritePromotion;
 	std::vector < sf::CircleShape > movement;
 	sf::RenderWindow* gameWindow = nullptr;

@@ -144,6 +144,9 @@
     <ClCompile Include="Piece.cpp" />
     <ClCompile Include="Queen.cpp" />
     <ClCompile Include="Rook.cpp" />
+    <ClCompile Include="Rune.cpp" />
+    <ClCompile Include="SacrificialPawn.cpp" />
+    <ClCompile Include="TextBubble.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bishop.h" />
@@ -156,6 +159,9 @@
     <ClInclude Include="Piece.h" />
     <ClInclude Include="Queen.h" />
     <ClInclude Include="Rook.h" />
+    <ClInclude Include="Rune.h" />
+    <ClInclude Include="SacrificialPawn.h" />
+    <ClInclude Include="TextBubble.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
