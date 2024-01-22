@@ -4,6 +4,7 @@ GameManager::GameManager(sf::RenderWindow* window)
 {
 	currentWindow = window;
 	board = new Board(8, 8, window);
+	menu = new Menu(window);
 }
 
 GameManager::~GameManager()
@@ -46,9 +47,12 @@ void GameManager::onClick(float x, float y)
 
 void GameManager::Display()
 {
+	menu->Display(currentWindow);
+	/*
 	board->Display(SelectedPiece);
 	if (waitForPromotion)
 	{
 		board->DisplayPromotion(SelectedPiece);
 	}
+	*/
 }

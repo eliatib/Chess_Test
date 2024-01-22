@@ -5,6 +5,7 @@
 #include "Board.h"
 #include "Cell.h"
 #include "Piece.h"
+#include "Menu.h"
 
 class GameManager
 {
@@ -21,6 +22,7 @@ private:
 	bool waitForPromotion = false;
 	Piece* SelectedPiece;
 	Board* board = nullptr;
+	Menu* menu = nullptr;
 	bool checkmate = false;
 	sf::RenderWindow* currentWindow;
 	std::vector< std::vector< Cell > > cells;
