@@ -1,7 +1,5 @@
 #include "Rune.h"
-// mettre verification après mouvement sur plateau (pour rune qui donne un 2eme tour), 
-// avant calcul mouvement pièce (pour rune qui donne autre mouvement), 
+// mettre verification après mouvement sur plateau (pour rune qui donne un 2eme tour),
+// avant calcul mouvement pièce (pour rune qui donne autre mouvement),
 // durant click (pour rune qui donne une action spécial)
-// séparé rune en plusieur type ?
-
-
+// séparErune en plusieur type ?

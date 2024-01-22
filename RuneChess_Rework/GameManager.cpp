@@ -14,6 +14,7 @@ void GameManager::onClick(float x, float y)
 {
 	if (!waitForPromotion)
 	{
+		//verifRune ? launchRune
 		if (SelectedPiece != nullptr)
 		{
 			waitForPromotion = board->MovePiece(&isWhiteTurn, x, y, SelectedPiece, checkmate);
@@ -37,7 +38,7 @@ void GameManager::onClick(float x, float y)
 		}
 	}
 
-	if(checkmate)
+	if (checkmate)
 	{
 		std::cout << "checkmate" << std::endl;
 	}

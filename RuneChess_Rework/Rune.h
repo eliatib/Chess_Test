@@ -14,8 +14,8 @@ public:
 	Rune(sf::Sprite sprite) { runeSprite = sprite; };
 	virtual void LauchEffect() {};
 	virtual void Verification() {};
+	virtual void VerificationCheckMate() {};
 	virtual void DisplayRune(sf::RenderWindow* window, sf::Vector2f pos) {};
 private:
-	 sf::Sprite runeSprite;
+	sf::Sprite runeSprite;
 };
-
