@@ -11,6 +11,5 @@ public:
 	void Display(sf::RenderWindow* window);
 private:
 	sf::RectangleShape backgroundRect;
-	Text* B_text;
+	Text* B_text = nullptr;
 };
-

@@ -2,15 +2,12 @@
 
 Text::Text(string text, string font, int size)
 {
-	sf::Font myFont = sf::Font{};
-
 	if (!myFont.loadFromFile(font))
 	{
 		sf::err() << "Couldn't load font\n";
 	}
 
-	myText = sf::Text{ text, myFont };
-	myText.setCharacterSize(size);
+	myText = sf::Text(text, myFont, size);
 }
 
 void Text::Center(sf::Vector2i element, sf::Vector2u size)

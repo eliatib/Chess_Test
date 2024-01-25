@@ -3,32 +3,31 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(2400, 1200), "Rune Chess", sf::Style::Titlebar | sf::Style::Close);
-    GameManager* gm = new GameManager(&window);
+	sf::RenderWindow window(sf::VideoMode(1900, 800), "Rune Chess", sf::Style::Titlebar | sf::Style::Close);
+	GameManager* gm = new GameManager(&window);
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
 
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                if (event.mouseButton.button == sf::Mouse::Left)
-                {
-                    std::cout << "click" << std::endl;
-                    gm->onClick(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
-                }
-            }
-            
-        }
+			if (event.type == sf::Event::MouseButtonPressed)
+			{
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					std::cout << "click" << std::endl;
+					gm->onClick(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+				}
+			}
+		}
 
-        window.clear(sf::Color(204, 204, 255));
-        gm->Display();
-        window.display();
-    }
+		window.clear(sf::Color(204, 204, 255));
+		gm->Display();
+		window.display();
+	}
 
-    return 0;
+	return 0;
 }
