@@ -217,7 +217,7 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 void Board::createBoard(int width, int height)
 {
 	cellSize = std::min(gameWindow->getSize().x / 10, gameWindow->getSize().y / 10);
-	boardSize = sf::Vector2i(width, height);
+	boardSize = sf::Vector2f(width, height);
 	for (int boardHeight = 0; boardHeight < height; boardHeight++)
 	{
 		std::vector < Cell* > line;
@@ -244,6 +244,8 @@ void Board::createPieces()
 	int line{ 0 };
 	float spriteHeight = pieceTexture.getSize().y / 2;
 	float spriteWidth = pieceTexture.getSize().x / 6;
+	pieceSize = sf::Vector2f(spriteWidth, spriteHeight);
+	scale = sf::Vector2f(cellSize / (pieceSize.x * 1.3), cellSize / (pieceSize.y*1.3));
 	for (char c : FEN)
 	{
 		float spriteX = 0;
@@ -303,7 +305,7 @@ void Board::createPieces()
 			sf::Sprite sprite;
 			sprite.setTexture(pieceTexture);
 			sprite.setTextureRect(sf::IntRect(spriteX, spriteY, spriteWidth, spriteHeight));
-			sprite.setScale(sf::Vector2<float>(0.5, 0.5));
+			sprite.setScale(sf::Vector2<float>(scale.x, scale.y));
 			piece->pieceSprite = sprite;
 			piece->white = isWhite;
 			piece->pos = sf::Vector2i(col, line);
@@ -331,16 +333,16 @@ void Board::CreateSpritePromotion(Piece* selectedPiece)
 	int col{ 0 };
 	int line{ 0 };
 	std::vector<sf::Sprite> sprites(4);
-	float spriteHeight = pieceTexture.getSize().y / 2;
-	float spriteWidth = pieceTexture.getSize().x / 6;
-	float spriteY = selectedPiece->white ? 0 : spriteHeight;
+	float spriteHeight = pieceSize.y;
+	float spriteWidth = pieceSize.x;
+	float spriteY = selectedPiece->white ? 0 : pieceSize.y;
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		float spriteX = spriteWidth * (1 + i);
 		sf::Sprite sprite;
 		sprite.setTexture(pieceTexture);
-		sprite.setTextureRect(sf::IntRect(spriteX, spriteY, spriteWidth, spriteHeight));
-		sprite.setScale(sf::Vector2<float>(0.5, 0.5));
+		sprite.setTextureRect(sf::IntRect(spriteX, spriteY, pieceSize.x, pieceSize.y));
+		sprite.setScale(sf::Vector2<float>(scale.x, scale.y));
 		sprites[i] = sprite;
 	}
 	SpritePromotion = sprites;

@@ -6,10 +6,9 @@ class Menu
 public:
 	Menu(sf::RenderWindow* window);
 	void Display(sf::RenderWindow* window);
+	bool OnClick(sf::RenderWindow* window, sf::Vector2i pos);
 private:
 	Text* title = nullptr;
-	Button* play = nullptr;
-	Button* play_IA = nullptr;
-	Button* quit = nullptr;
+	std::vector<Button*> buttons;
 };
 

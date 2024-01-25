@@ -9,8 +9,14 @@ Button::Button(sf::Color color, sf::Vector2u size, sf::Vector2i pos, string text
 	B_text->Center(sf::Vector2i(backgroundRect.getPosition().x, backgroundRect.getPosition().y), sf::Vector2u(backgroundRect.getSize().x, backgroundRect.getSize().y));
 }
 
-void Button::OnClick(sf::RenderWindow* window)
+bool Button::OnClick(sf::Vector2i pos)
 {
+	if (backgroundRect.getPosition().x <  pos.x && backgroundRect.getPosition().x + backgroundRect.getSize().x > pos.x 
+		&& backgroundRect.getPosition().y <  pos.y && backgroundRect.getPosition().y + backgroundRect.getSize().y > pos.y)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Button::Hover(sf::RenderWindow* window)

@@ -19,7 +19,7 @@ int main()
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
 					std::cout << "click" << std::endl;
-					gm->onClick(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+					gm->onClick(sf::Mouse::getPosition(window));
 				}
 			}
 		}

@@ -14,12 +14,13 @@ public:
 	GameManager() : currentWindow(nullptr), isWhiteTurn(true) {};
 	GameManager(sf::RenderWindow* window = nullptr);
 	~GameManager();
-	void onClick(float x, float y);
+	void onClick(sf::Vector2i pos);
 
 	void Display();
 private:
 	bool isWhiteTurn = true;
 	bool waitForPromotion = false;
+	bool inMenu = true;
 	Piece* SelectedPiece;
 	Board* board = nullptr;
 	Menu* menu = nullptr;

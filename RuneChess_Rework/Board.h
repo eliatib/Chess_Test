@@ -43,7 +43,9 @@ private:
 	std::vector<sf::Sprite> SpritePromotion;
 	std::vector < sf::CircleShape > movement;
 	sf::RenderWindow* gameWindow = nullptr;
-	sf::Vector2i boardSize;
+	sf::Vector2f boardSize;
+	sf::Vector2f pieceSize;
+	sf::Vector2f scale;
 	float cellSize;
 };
 #endif

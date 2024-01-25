@@ -11,48 +11,59 @@ GameManager::~GameManager()
 {
 }
 
-void GameManager::onClick(float x, float y)
+void GameManager::onClick(sf::Vector2i pos)
 {
-	if (!waitForPromotion)
+	if (inMenu)
 	{
-		//verifRune ? launchRune
-		if (SelectedPiece != nullptr)
+		inMenu = menu->OnClick(currentWindow, pos);
+	}
+	else
+	{
+		if (!waitForPromotion)
 		{
-			waitForPromotion = board->MovePiece(&isWhiteTurn, x, y, SelectedPiece, checkmate);
-			board->DeselectPiece(SelectedPiece);
+			//verifRune ? launchRune
+			if (SelectedPiece != nullptr)
+			{
+				waitForPromotion = board->MovePiece(&isWhiteTurn, pos.x, pos.y, SelectedPiece, checkmate);
+				board->DeselectPiece(SelectedPiece);
+				if (!waitForPromotion)
+				{
+					SelectedPiece = nullptr;
+				}
+			}
+			if (!waitForPromotion)
+			{
+				SelectedPiece = board->SelectPiece(isWhiteTurn, pos.x, pos.y);
+			}
+		}
+		else
+		{
+			waitForPromotion = board->ChoosePromotion(SelectedPiece, pos.x, pos.y, &isWhiteTurn, checkmate);
 			if (!waitForPromotion)
 			{
 				SelectedPiece = nullptr;
 			}
 		}
-		if (!waitForPromotion)
-		{
-			SelectedPiece = board->SelectPiece(isWhiteTurn, x, y);
-		}
-	}
-	else
-	{
-		waitForPromotion = board->ChoosePromotion(SelectedPiece, x, y, &isWhiteTurn, checkmate);
-		if (!waitForPromotion)
-		{
-			SelectedPiece = nullptr;
-		}
-	}
 
-	if (checkmate)
-	{
-		std::cout << "checkmate" << std::endl;
+		if (checkmate)
+		{
+			std::cout << "checkmate" << std::endl;
+		}
 	}
 }
 
 void GameManager::Display()
 {
-	menu->Display(currentWindow);
-	/*
-	board->Display(SelectedPiece);
-	if (waitForPromotion)
+	if (inMenu)
 	{
-		board->DisplayPromotion(SelectedPiece);
+		menu->Display(currentWindow);
 	}
-	*/
+	else
+	{
+		board->Display(SelectedPiece);
+		if (waitForPromotion)
+		{
+			board->DisplayPromotion(SelectedPiece);
+		}
+	}
 }
