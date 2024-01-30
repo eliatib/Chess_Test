@@ -26,6 +26,8 @@ public:
 	Piece* SelectPiece(bool isWhite, float x, float y);
 	void DeselectPiece(Piece* piece);
 	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate);
+	std::vector< std::vector< Cell > > GetBoard();
+	std::vector< Piece* > GetPieces();
 private:
 	void createBoard(int width, int height);
 	void createPieces();
@@ -37,7 +39,8 @@ private:
 	std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 	Piece* inCheckPiece;
 	std::vector< Piece* > kingsPiece;
-	std::vector< std::vector< Cell* > > boardCells;
+	std::vector< Piece* > pieces;
+	std::vector< std::vector< Cell > > boardCells;
 	sf::Texture pieceTexture;
 	sf::Texture RuneTexture;
 	std::vector<sf::Sprite> SpritePromotion;

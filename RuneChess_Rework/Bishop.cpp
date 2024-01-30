@@ -1,6 +1,6 @@
 #include "Bishop.h"
 
-void Bishop::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
+void Bishop::CalculatePossibleMove(std::vector<std::vector<Cell>>* boardCells)
 {
 	for (int right = -1; right < 2; right += 2)
 	{
@@ -14,13 +14,13 @@ void Bishop::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			{
 				int x = pos.x + (i * right);
 				int y = pos.y + (i * down);
-				if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+				if ((*boardCells)[y][x].GetPiece() == nullptr || (*boardCells)[y][x].GetPiece()->white != white)
 				{
 					possibleMoves.push_back(sf::Vector2i(
 						x,
 						y)
 					);
-					if ((*boardCells)[y][x]->GetPiece() != nullptr)
+					if ((*boardCells)[y][x].GetPiece() != nullptr)
 					{
 						break;
 					}
@@ -30,4 +30,9 @@ void Bishop::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			}
 		}
 	}
+}
+
+int Bishop::GetPoint()
+{
+	return 12;
 }

@@ -1,6 +1,6 @@
 #include "Queen.h"
 
-void Queen::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
+void Queen::CalculatePossibleMove(std::vector<std::vector<Cell>>* boardCells)
 {
 	//Rook moves
 	for (int right = -1; right < 2; right++)
@@ -15,13 +15,13 @@ void Queen::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 				{
 					int x = pos.x + (i * right);
 					int y = pos.y + (i * down);
-					if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+					if ((*boardCells)[y][x].GetPiece() == nullptr || (*boardCells)[y][x].GetPiece()->white != white)
 					{
 						possibleMoves.push_back(sf::Vector2i(
 							x,
 							y)
 						);
-						if ((*boardCells)[y][x]->GetPiece() != nullptr)
+						if ((*boardCells)[y][x].GetPiece() != nullptr)
 						{
 							break;
 						}
@@ -45,13 +45,13 @@ void Queen::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			{
 				int x = pos.x + (i * right);
 				int y = pos.y + (i * down);
-				if ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+				if ((*boardCells)[y][x].GetPiece() == nullptr || (*boardCells)[y][x].GetPiece()->white != white)
 				{
 					possibleMoves.push_back(sf::Vector2i(
 						x,
 						y)
 					);
-					if ((*boardCells)[y][x]->GetPiece() != nullptr)
+					if ((*boardCells)[y][x].GetPiece() != nullptr)
 					{
 						break;
 					}
@@ -61,4 +61,9 @@ void Queen::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			}
 		}
 	}
+}
+
+int Queen::GetPoint()
+{
+	return 30;
 }

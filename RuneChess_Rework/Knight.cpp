@@ -1,7 +1,7 @@
 #include "Knight.h"
 #include "King.h"
 
-void Knight::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
+void Knight::CalculatePossibleMove(std::vector<std::vector<Cell>>* boardCells)
 {
 	for (int i = -2; i <= 2; i++)
 	{
@@ -14,7 +14,7 @@ void Knight::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 				int x = pos.x + j;
 				if (x >= 0 && x < (*boardCells)[y].size())
 				{
-					if (x >= 0 && x < (*boardCells)[y].size() && ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white))
+					if (x >= 0 && x < (*boardCells)[y].size() && ((*boardCells)[y][x].GetPiece() == nullptr || (*boardCells)[y][x].GetPiece()->white != white))
 					{
 						possibleMoves.push_back(sf::Vector2i(
 							x,
@@ -25,4 +25,9 @@ void Knight::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			}
 		}
 	}
+}
+
+int Knight::GetPoint()
+{
+	return 10;
 }
