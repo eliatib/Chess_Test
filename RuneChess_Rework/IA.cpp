@@ -3,7 +3,11 @@
 void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite,bool& checkmate)
 {
 	ChooseMove(board);
-	board->MovePiece(isWhite, bestMove.x, bestMove.y, pieceToMove, checkmate);
+	bool inPromotion = board->MovePiece(isWhite, bestMove.x, bestMove.y, pieceToMove, checkmate);
+	if(inPromotion)
+	{
+	
+	}
 }
 
 void IA::ChooseMove(Board* board)
