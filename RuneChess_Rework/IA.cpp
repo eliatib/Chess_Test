@@ -1,22 +1,29 @@
 #include "IA.h"
 
-void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite,bool& checkmate)
+void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite, bool& checkmate)
 {
 	ChooseMove(board);
 	bool inPromotion = board->MovePiece(isWhite, bestMove.x, bestMove.y, pieceToMove, checkmate);
-	if(inPromotion)
+	if (inPromotion)
 	{
-	
+		Piece* newPiece = new Queen();
+		newPiece->white = pieceToMove->white;
+		newPiece->asMove = true;
+		newPiece->pos = pieceToMove->pos;
+		newPiece->currentCell = pieceToMove->currentCell;
+		pieceToMove = newPiece;
+		pieceToMove->currentCell->SetPiece(pieceToMove);
+		board->CreateTexturePiece(pieceToMove);
 	}
 }
 
 void IA::ChooseMove(Board* board)
 {
 	std::vector<Piece*> pieces = board->GetPieces();
-	MiniMax(board->GetBoard(),pieces, 3, true);
+	MiniMax(board->GetBoard(), pieces, 3, true);
 }
 
-int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces,  int iteration, bool isWhite)
+int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite)
 {
 	if (iteration <= 0)
 	{
@@ -24,20 +31,20 @@ int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces
 	}
 	int eval = isWhite ? -99999 : 99999;
 	int newEval = eval;
-	for(Piece* piece : pieces)
+	for (Piece* piece : pieces)
 	{
-		if(piece->white == isWhite)
+		if (piece->white == isWhite)
 		{
 			piece->CalculatePossibleMove(&cells);
-			std::vector<std::vector<Cell>> copy = cells; 
-			sf::Vector2i copyPos = piece->pos;
-			for(sf::Vector2i move : piece->possibleMoves)
+			std::vector<std::vector<Cell>> copy = cells;
+			Piece copyPiece = *piece;
+			for (sf::Vector2i move : piece->possibleMoves)
 			{
 				TestMove(&cells, piece, move);//do move
 
 				newEval = isWhite ? std::max(eval, MiniMax(cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(cells, pieces, iteration - 1, !isWhite));
 
-				if(newEval != eval)
+				if (newEval != eval)
 				{
 					bestMove = move;
 					pieceToMove = piece;
@@ -46,7 +53,7 @@ int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces
 				eval = newEval;
 
 				cells = copy; //undo move
-				piece->pos = copyPos;
+				piece = &copyPiece;
 			}
 		}
 	}
@@ -56,12 +63,12 @@ int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces
 int IA::countPoint(std::vector<std::vector<Cell>> cells)
 {
 	int result = 0;
-	for(std::vector<Cell> line : cells)
+	for (std::vector<Cell> line : cells)
 	{
-		for(Cell cell : line)
+		for (Cell cell : line)
 		{
 			Piece* piece = cell.GetPiece();
-			if(piece != nullptr)
+			if (piece != nullptr)
 			{
 				result += piece->GetPoint();
 			}
@@ -73,8 +80,14 @@ int IA::countPoint(std::vector<std::vector<Cell>> cells)
 void IA::TestMove(std::vector<std::vector<Cell>>* cells, Piece* piece, sf::Vector2i move)
 {
 	(*cells)[piece->pos.y][piece->pos.x].SetPiece(nullptr);
+	if (typeid(*piece) == typeid(Pawn) && ((piece->white && move.y == 7) || (!piece->white && move.y == 0)))
+	{
+		Piece* newPiece = new Queen();
+		newPiece->white = piece->white;
+		newPiece->asMove = true;
+		piece = newPiece;
+	}
+
 	(*cells)[move.y][move.x].SetPiece(piece);
 	piece->pos = move;
 }
-
-

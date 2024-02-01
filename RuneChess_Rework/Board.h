@@ -28,6 +28,8 @@ public:
 	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate);
 	std::vector< std::vector< Cell > > GetBoard();
 	std::vector< Piece* > GetPieces();
+	void CreateTexturePiece(Piece* piece);
+
 private:
 	void createBoard(int width, int height);
 	void createPieces();

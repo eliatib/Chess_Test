@@ -143,7 +143,7 @@ Piece* Board::SelectPiece(bool isWhite, float x, float y)
 void Board::DeselectPiece(Piece* piece)
 {
 	piece->pieceSprite.setColor(sf::Color(255, 255, 255, 255));
-	for(int i = 0;i < piece->possibleMoves.size();i++)
+	for (int i = 0; i < piece->possibleMoves.size(); i++)
 	{
 		sf::Vector2i pos = piece->possibleMoves[i];
 		boardCells[pos.y][pos.x].SetShowMove(false);
@@ -224,6 +224,30 @@ std::vector<Piece*> Board::GetPieces()
 	return pieces;
 }
 
+void Board::CreateTexturePiece(Piece* piece)
+{
+	float spriteHeight = pieceTexture.getSize().y / 2;
+	float spriteWidth = pieceTexture.getSize().x / 6;
+	float spriteX = 0;
+	float spriteY = 0;
+
+	if (typeid(*piece) == typeid(Queen))
+	{
+		spriteX = 1;
+	}
+	spriteX *= spriteWidth;
+	if (!piece->white)
+	{
+		spriteY = pieceTexture.getSize().y / 2;
+	}
+
+	sf::Sprite sprite;
+	sprite.setTexture(pieceTexture);
+	sprite.setTextureRect(sf::IntRect(spriteX, spriteY, spriteWidth, spriteHeight));
+	sprite.setScale(sf::Vector2<float>(scale.x, scale.y));
+	piece->pieceSprite = sprite;
+}
+
 void Board::createBoard(int width, int height)
 {
 	cellSize = std::min(gameWindow->getSize().x / 10, gameWindow->getSize().y / 10);
@@ -255,7 +279,7 @@ void Board::createPieces()
 	float spriteHeight = pieceTexture.getSize().y / 2;
 	float spriteWidth = pieceTexture.getSize().x / 6;
 	pieceSize = sf::Vector2f(spriteWidth, spriteHeight);
-	scale = sf::Vector2f(cellSize / (pieceSize.x * 1.3), cellSize / (pieceSize.y*1.3));
+	scale = sf::Vector2f(cellSize / (pieceSize.x * 1.3), cellSize / (pieceSize.y * 1.3));
 	for (char c : FEN)
 	{
 		float spriteX = 0;
@@ -381,7 +405,7 @@ bool Board::VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i
 					{
 						continue;
 					}
-					else if(x == move.x && y == move.y)
+					else if (x == move.x && y == move.y)
 					{
 						break;
 					}
@@ -467,25 +491,25 @@ bool Board::VerifyAllMove(Piece* king)
 		for (Cell cell : cellLine)
 		{
 			Piece* piece = cell.GetPiece();
-			if(piece != nullptr && piece->white == king->white)
+			if (piece != nullptr && piece->white == king->white)
 			{
 				piece->possibleMoves.clear();
 				piece->CalculatePossibleMove(&boardCells);
 				std::vector< sf::Vector2i >* possibleMoves = &piece->possibleMoves;
 				sf::Vector2i pos = piece->pos;
 				int i = 0;
-				while(i<possibleMoves->size())
+				while (i < possibleMoves->size())
 				{
 					bool fCheck;
-					if(typeid(*piece) == typeid(King))
+					if (typeid(*piece) == typeid(King))
 					{
 						fCheck = VerifyKingNotinCheck(king, (*possibleMoves)[i], pos, (*possibleMoves)[i]);
 					}
 					else
 					{
-						fCheck = VerifyKingNotinCheck(king,king->pos, pos, (*possibleMoves)[i]);
+						fCheck = VerifyKingNotinCheck(king, king->pos, pos, (*possibleMoves)[i]);
 					}
-					if(fCheck)
+					if (fCheck)
 					{
 						possibleMoves->erase(possibleMoves->begin() + i);
 						continue;
@@ -493,7 +517,7 @@ bool Board::VerifyAllMove(Piece* king)
 					i++;
 				}
 
-				if(!possibleMoves->empty())
+				if (!possibleMoves->empty())
 				{
 					checkmate = false;
 				}
