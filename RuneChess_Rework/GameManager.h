@@ -6,6 +6,7 @@
 #include "Cell.h"
 #include "Piece.h"
 #include "Menu.h"
+#include "IA.h"
 
 class GameManager
 {
@@ -21,9 +22,12 @@ private:
 	bool isWhiteTurn = true;
 	bool waitForPromotion = false;
 	bool inMenu = true;
+	bool againstIA = false;
+	bool iaIsPlaying = false;
 	Piece* SelectedPiece;
 	Board* board = nullptr;
 	Menu* menu = nullptr;
+	IA* ia = nullptr;
 	bool checkmate = false;
 	sf::RenderWindow* currentWindow;
 	std::vector< std::vector< Cell > > cells;

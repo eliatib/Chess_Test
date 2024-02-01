@@ -10,7 +10,7 @@ private :
 	sf::Vector2i bestMove;
 	Piece* pieceToMove;
 	void ChooseMove(Board* board);
-	int MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite);
+	int MiniMax(Board * board,std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite);
 	int countPoint(std::vector<std::vector<Cell>> cells);
 	void TestMove(std::vector<std::vector<Cell>>* cells, Piece* piece, sf::Vector2i move);
 };

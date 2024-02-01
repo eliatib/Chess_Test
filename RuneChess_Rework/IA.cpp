@@ -2,7 +2,10 @@
 
 void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite, bool& checkmate)
 {
+	std::cout << "begin check" << std::endl;
 	ChooseMove(board);
+	std::cout << "end check" << std::endl;
+	
 	bool inPromotion = board->MovePiece(isWhite, bestMove.x, bestMove.y, pieceToMove, checkmate);
 	if (inPromotion)
 	{
@@ -20,10 +23,10 @@ void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite, bool& check
 void IA::ChooseMove(Board* board)
 {
 	std::vector<Piece*> pieces = board->GetPieces();
-	MiniMax(board->GetBoard(), pieces, 3, true);
+	MiniMax(board, board->GetBoard(), pieces, 2, false);
 }
 
-int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite)
+int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite)
 {
 	if (iteration <= 0)
 	{
@@ -31,29 +34,56 @@ int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces
 	}
 	int eval = isWhite ? -99999 : 99999;
 	int newEval = eval;
-	for (Piece* piece : pieces)
+	for (int i=0;i<pieces.size();i++)
 	{
-		if (piece->white == isWhite)
+		if (pieces[i]->white == isWhite)
 		{
-			piece->CalculatePossibleMove(&cells);
+			pieces[i]->possibleMoves.clear();
+			pieces[i]->CalculatePossibleMove(&cells);
 			std::vector<std::vector<Cell>> copy = cells;
-			Piece copyPiece = *piece;
-			for (sf::Vector2i move : piece->possibleMoves)
+			//copy piece element
+			sf::Vector2i copyPos = pieces[i]->pos;
+			bool copyAsMove = pieces[i]->asMove;
+			bool isPawn = false;
+			if(typeid(*pieces[i]) == typeid(Pawn))
 			{
-				TestMove(&cells, piece, move);//do move
+				isPawn = true;
+			}
 
-				newEval = isWhite ? std::max(eval, MiniMax(cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(cells, pieces, iteration - 1, !isWhite));
-
-				if (newEval != eval)
+			if (pieces[i]->possibleMoves.size() != 0)
+			{
+				for (int y = 0; y < pieces[i]->possibleMoves.size(); y++)
 				{
-					bestMove = move;
-					pieceToMove = piece;
+					std::cout << "pos :" << copyPos.x << " " << copyPos.y << " move : " << pieces[i]->possibleMoves[y].x << " " << pieces[i]->possibleMoves[y].y << " " << iteration << std::endl;
+					TestMove(&cells, pieces[i], pieces[i]->possibleMoves[y]);//do move
+
+					newEval = isWhite ? std::max(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite));
+
+					if (pieces[i]->possibleMoves.size() != 0 && newEval != eval)
+					{
+						bestMove = pieces[i]->possibleMoves[y];
+						pieceToMove = pieces[i];
+					}
+
+					eval = newEval;
+
+					cells = copy; //undo move
+					pieces[i]->pos = copyPos;
+					pieces[i]->asMove = copyAsMove;
+					if(isPawn)
+					{
+						Piece* newPiece = new Pawn();
+						newPiece->white = pieces[i]->white;
+						newPiece->asMove = pieces[i]->asMove;
+						newPiece->pos = pieces[i]->pos;
+						newPiece->currentCell = pieces[i]->currentCell;
+						pieces[i] = newPiece;
+						pieces[i]->currentCell->SetPiece(pieces[i]);
+						board->CreateTexturePiece(pieces[i]);
+						pieces[i]->possibleMoves.clear();
+						pieces[i]->CalculatePossibleMove(&cells);
+					}
 				}
-
-				eval = newEval;
-
-				cells = copy; //undo move
-				piece = &copyPiece;
 			}
 		}
 	}
@@ -87,7 +117,10 @@ void IA::TestMove(std::vector<std::vector<Cell>>* cells, Piece* piece, sf::Vecto
 		newPiece->asMove = true;
 		piece = newPiece;
 	}
-
+	if(!piece->asMove)
+	{
+		piece->asMove = true;
+	}
 	(*cells)[move.y][move.x].SetPiece(piece);
 	piece->pos = move;
 }

@@ -235,6 +235,10 @@ void Board::CreateTexturePiece(Piece* piece)
 	{
 		spriteX = 1;
 	}
+	else if (typeid(*piece) == typeid(Pawn))
+	{
+		spriteX = 5;
+	}
 	spriteX *= spriteWidth;
 	if (!piece->white)
 	{

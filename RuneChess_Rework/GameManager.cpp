@@ -5,6 +5,7 @@ GameManager::GameManager(sf::RenderWindow* window)
 	currentWindow = window;
 	board = new Board(8, 8, window);
 	menu = new Menu(window);
+	ia = new IA();
 }
 
 GameManager::~GameManager()
@@ -15,9 +16,9 @@ void GameManager::onClick(sf::Vector2i pos)
 {
 	if (inMenu)
 	{
-		inMenu = menu->OnClick(currentWindow, pos);
+		inMenu = menu->OnClick(currentWindow, pos, &againstIA);
 	}
-	else
+	else if((againstIA && isWhiteTurn) || !againstIA)
 	{
 		if (!waitForPromotion)
 		{
@@ -49,6 +50,15 @@ void GameManager::onClick(sf::Vector2i pos)
 		{
 			std::cout << "checkmate" << std::endl;
 		}
+	}
+
+	if(againstIA && !isWhiteTurn && !iaIsPlaying)
+	{
+		iaIsPlaying = true;
+		std::cout << "here" << std::endl;
+		ia->Play(currentWindow, board, &isWhiteTurn, checkmate);
+		iaIsPlaying = false;
+		isWhiteTurn = true;
 	}
 }
 

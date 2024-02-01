@@ -18,7 +18,7 @@ void Menu::Display(sf::RenderWindow* window)
 	}
 }
 
-bool Menu::OnClick(sf::RenderWindow* window, sf::Vector2i pos)
+bool Menu::OnClick(sf::RenderWindow* window, sf::Vector2i pos,bool* ia)
 {
 	for(int i =0 ;i<buttons.size(); i++)
 	{
@@ -29,6 +29,7 @@ bool Menu::OnClick(sf::RenderWindow* window, sf::Vector2i pos)
 			case 0:
 				return false;
 			case 1:
+				*ia = true;
 				return false;
 			case 2:
 				window->close();
