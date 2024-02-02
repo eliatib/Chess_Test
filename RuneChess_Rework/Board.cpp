@@ -214,6 +214,64 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 	return false;
 }
 
+void Board::MovePieceIA(bool* isWhite, Piece* pieceToMove, sf::Vector2i move, bool& checkmate)
+{
+	int col = move.x;
+	int line = move.y;
+	int column = col;
+	//roc
+	if (boardCells[line][col].GetPiece() != nullptr && pieceToMove->white == boardCells[line][col].GetPiece()->white)
+	{
+		int colSelected = pieceToMove->pos.x;
+		column = col < colSelected ? ++column : --column;
+		Piece* piece = boardCells[line][col].GetPiece();
+
+		pieceToMove->asMove = true;
+
+		piece->pos.x = col < colSelected ? pieceToMove->pos.x - 1 : pieceToMove->pos.x + 1;
+
+		piece->currentCell = &boardCells[piece->pos.y][piece->pos.x];
+		boardCells[line][col].SetPiece(nullptr);
+		boardCells[piece->pos.y][piece->pos.x].SetPiece(piece);
+	}
+	pieceToMove->pos = sf::Vector2i(column, line);
+	pieceToMove->asMove = true;
+
+	boardCells[line][column].SetPiece(pieceToMove);
+	pieceToMove->currentCell->SetPiece(nullptr);
+
+	pieceToMove->currentCell = &boardCells[line][column];
+
+	if (typeid(*pieceToMove) == typeid(Pawn))
+	{
+		if ((pieceToMove->white && pieceToMove->pos.y + 1 == boardSize.y)
+			|| (!pieceToMove->white && pieceToMove->pos.y == 0))
+		{
+			Piece* newPiece = new Queen();
+			newPiece->white = pieceToMove->white;
+			newPiece->asMove = true;
+			newPiece->pos = pieceToMove->pos;
+			newPiece->currentCell = pieceToMove->currentCell;
+			pieceToMove = newPiece;
+			pieceToMove->currentCell->SetPiece(pieceToMove);
+			CreateTexturePiece(pieceToMove);
+		}
+	}
+
+	for (int i = 0; i < kingsPiece.size(); i++)
+	{
+		if (*isWhite != kingsPiece[i]->white)
+		{
+			checkmate = VerifyAllMove(kingsPiece[i]);
+		}
+	}
+
+	if (isWhite != nullptr)
+	{
+		*isWhite = !(*isWhite);
+	}
+}
+
 std::vector<std::vector<Cell>> Board::GetBoard()
 {
 	return boardCells;

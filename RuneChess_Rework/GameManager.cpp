@@ -18,7 +18,7 @@ void GameManager::onClick(sf::Vector2i pos)
 	{
 		inMenu = menu->OnClick(currentWindow, pos, &againstIA);
 	}
-	else if((againstIA && isWhiteTurn) || !againstIA)
+	else if ((againstIA && isWhiteTurn) || !againstIA)
 	{
 		if (!waitForPromotion)
 		{
@@ -51,15 +51,6 @@ void GameManager::onClick(sf::Vector2i pos)
 			std::cout << "checkmate" << std::endl;
 		}
 	}
-
-	if(againstIA && !isWhiteTurn && !iaIsPlaying)
-	{
-		iaIsPlaying = true;
-		std::cout << "here" << std::endl;
-		ia->Play(currentWindow, board, &isWhiteTurn, checkmate);
-		iaIsPlaying = false;
-		isWhiteTurn = true;
-	}
 }
 
 void GameManager::Display()
@@ -71,6 +62,14 @@ void GameManager::Display()
 	else
 	{
 		board->Display(SelectedPiece);
+		if (againstIA && !isWhiteTurn && !iaIsPlaying)
+		{
+			iaIsPlaying = true;
+			std::cout << "here" << std::endl;
+			ia->Play(currentWindow, board, &isWhiteTurn, checkmate);
+			iaIsPlaying = false;
+			isWhiteTurn = true;
+		}
 		if (waitForPromotion)
 		{
 			board->DisplayPromotion(SelectedPiece);

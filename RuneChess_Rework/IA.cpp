@@ -5,19 +5,7 @@ void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite, bool& check
 	std::cout << "begin check" << std::endl;
 	ChooseMove(board);
 	std::cout << "end check" << std::endl;
-	
-	bool inPromotion = board->MovePiece(isWhite, bestMove.x, bestMove.y, pieceToMove, checkmate);
-	if (inPromotion)
-	{
-		Piece* newPiece = new Queen();
-		newPiece->white = pieceToMove->white;
-		newPiece->asMove = true;
-		newPiece->pos = pieceToMove->pos;
-		newPiece->currentCell = pieceToMove->currentCell;
-		pieceToMove = newPiece;
-		pieceToMove->currentCell->SetPiece(pieceToMove);
-		board->CreateTexturePiece(pieceToMove);
-	}
+	board->MovePieceIA(isWhite, pieceToMove, bestMove, checkmate);
 }
 
 void IA::ChooseMove(Board* board)
@@ -34,7 +22,7 @@ int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<
 	}
 	int eval = isWhite ? -99999 : 99999;
 	int newEval = eval;
-	for (int i=0;i<pieces.size();i++)
+	for (int i = 0; i < pieces.size(); i++)
 	{
 		if (pieces[i]->white == isWhite)
 		{
@@ -45,7 +33,7 @@ int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<
 			sf::Vector2i copyPos = pieces[i]->pos;
 			bool copyAsMove = pieces[i]->asMove;
 			bool isPawn = false;
-			if(typeid(*pieces[i]) == typeid(Pawn))
+			if (typeid(*pieces[i]) == typeid(Pawn))
 			{
 				isPawn = true;
 			}
@@ -70,7 +58,7 @@ int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<
 					cells = copy; //undo move
 					pieces[i]->pos = copyPos;
 					pieces[i]->asMove = copyAsMove;
-					if(isPawn)
+					if (isPawn)
 					{
 						Piece* newPiece = new Pawn();
 						newPiece->white = pieces[i]->white;
@@ -117,7 +105,7 @@ void IA::TestMove(std::vector<std::vector<Cell>>* cells, Piece* piece, sf::Vecto
 		newPiece->asMove = true;
 		piece = newPiece;
 	}
-	if(!piece->asMove)
+	if (!piece->asMove)
 	{
 		piece->asMove = true;
 	}

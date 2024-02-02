@@ -26,6 +26,7 @@ public:
 	Piece* SelectPiece(bool isWhite, float x, float y);
 	void DeselectPiece(Piece* piece);
 	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate);
+	void MovePieceIA(bool* isWhite, Piece* pieceToMove, sf::Vector2i move, bool& checkmate);
 	std::vector< std::vector< Cell > > GetBoard();
 	std::vector< Piece* > GetPieces();
 	void CreateTexturePiece(Piece* piece);
