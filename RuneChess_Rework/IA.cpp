@@ -11,11 +11,30 @@ std::vector <sf::Vector2i> IA::Play(sf::RenderWindow* window, Board board, bool*
 
 void IA::ChooseMove(Board board)
 {
-	std::vector<Piece*> pieces = board.GetPieces();
-	MiniMax(board, board->GetBoard(), pieces, ite, false);
+	std::vector<Piece> pieces;
+
+	std::vector<std::vector<Cell>> cells;
+	for (std::vector<Cell> line : board.GetBoard())
+	{
+		std::vector<Cell> lines;
+		for (Cell cell : line)
+		{
+			lines.push_back(cell);
+		}
+		cells.push_back(lines);
+	}
+	std::vector<Piece*> ppieces = board.GetPieces();
+	for (int i = 0;i < ppieces.size();i++)
+	{
+		pieces.push_back(*ppieces[i]);
+		cells[pieces[i].pos.y][pieces[i].pos.x].SetPiece(&pieces[i]);
+		pieces[i].currentCell = &cells[pieces[i].pos.y][pieces[i].pos.x];
+	}
+
+	MiniMax(cells, pieces, ite, false);
 }
 
-int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite)
+int IA::MiniMax(std::vector<std::vector<Cell>> cells, std::vector<Piece> pieces, int iteration, bool isWhite)
 {
 	if (iteration <= 0)
 	{
@@ -25,52 +44,51 @@ int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<
 	int newEval = eval;
 	for (int i = 0; i < pieces.size(); i++)
 	{
-		if (pieces[i]->white == isWhite)
+		if (pieces[i].white == isWhite)
 		{
-			pieces[i]->possibleMoves.clear();
-			pieces[i]->CalculatePossibleMove(&cells);
+			pieces[i].possibleMoves.clear();
+			pieces[i].CalculatePossibleMove(&cells);
 			std::vector<std::vector<Cell>> copy = cells;
 			//copy piece element
-			sf::Vector2i copyPos = pieces[i]->pos;
-			bool copyAsMove = pieces[i]->asMove;
+			sf::Vector2i copyPos = pieces[i].pos;
+			bool copyAsMove = pieces[i].asMove;
 			bool isPawn = false;
-			if (typeid(*pieces[i]) == typeid(Pawn))
+			if (typeid(pieces[i]) == typeid(Pawn))
 			{
 				isPawn = true;
 			}
 
-			if (pieces[i]->possibleMoves.size() != 0)
+			if (pieces[i].possibleMoves.size() != 0)
 			{
-				for (int y = 0; y < pieces[i]->possibleMoves.size(); y++)
+				for (int y = 0; y < pieces[i].possibleMoves.size(); y++)
 				{
 					//std::cout << "pos :" << copyPos.x << " " << copyPos.y << " move : " << pieces[i]->possibleMoves[y].x << " " << pieces[i]->possibleMoves[y].y << " " << iteration << std::endl;
-					TestMove(&cells, pieces[i], pieces[i]->possibleMoves[y]);//do move
+					TestMove(&cells, &pieces[i], pieces[i].possibleMoves[y]);//do move
 
-					newEval = isWhite ? std::max(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite));
+					newEval = isWhite ? std::max(eval, MiniMax(cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(cells, pieces, iteration - 1, !isWhite));
 
-					if (pieces[i]->possibleMoves.size() != 0 && newEval != eval && iteration == ite)
+					if (pieces[i].possibleMoves.size() != 0 && newEval != eval && iteration == ite)
 					{
-						bestMove = pieces[i]->possibleMoves[y];
-						pieceToMove = pieces[i];
+						bestMove = pieces[i].possibleMoves[y];
+						piecePos = pieces[i].pos;
 					}
 
 					eval = newEval;
 
 					cells = copy; //undo move
-					pieces[i]->pos = copyPos;
-					pieces[i]->asMove = copyAsMove;
+					pieces[i].pos = copyPos;
+					pieces[i].asMove = copyAsMove;
 					if (isPawn)
 					{
 						Piece* newPiece = new Pawn();
-						newPiece->white = pieces[i]->white;
-						newPiece->asMove = pieces[i]->asMove;
-						newPiece->pos = pieces[i]->pos;
-						newPiece->currentCell = pieces[i]->currentCell;
-						pieces[i] = newPiece;
-						pieces[i]->currentCell->SetPiece(pieces[i]);
-						board->CreateTexturePiece(pieces[i]);
-						pieces[i]->possibleMoves.clear();
-						pieces[i]->CalculatePossibleMove(&cells);
+						newPiece->white = pieces[i].white;
+						newPiece->asMove = pieces[i].asMove;
+						newPiece->pos = pieces[i].pos;
+						newPiece->currentCell = pieces[i].currentCell;
+						pieces[i] = *newPiece;
+						pieces[i].currentCell->SetPiece(&pieces[i]);
+						pieces[i].possibleMoves.clear();
+						pieces[i].CalculatePossibleMove(&cells);
 					}
 				}
 			}
