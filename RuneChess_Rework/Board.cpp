@@ -43,6 +43,28 @@ void Board::Display(Piece* SelectedPiece)
 	}
 }
 
+void Board::writeBoard()
+{
+	for (int line = 0; line < boardCells.size(); line++)
+	{
+		std::cout << "----------------------------------------------------------------------------------" << std::endl;
+		for (int col = 0; col < boardCells[line].size(); col++)
+		{
+			Piece* piece = boardCells[line][col].GetPiece();
+			if (piece == nullptr)
+			{
+				std::cout << " ";
+			}
+			else 
+			{
+				std::cout << typeid(*piece).name();
+			};
+			std::cout << "|";
+		}
+		std::cout << std::endl;
+	}
+}
+
 void Board::DisplayPromotion(Piece* SelectedPiece)
 {
 	Cell* cell = SelectedPiece->currentCell;
@@ -150,7 +172,7 @@ void Board::DeselectPiece(Piece* piece)
 	}
 }
 
-bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate)
+bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate, bool& waitForPromotion)
 {
 	for (int line = 0; line < boardCells.size(); line++)
 	{
@@ -191,7 +213,8 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 						|| (!SelectedPiece->white && SelectedPiece->pos.y == 0))
 					{
 						CreateSpritePromotion(SelectedPiece);
-						return true;
+						waitForPromotion = true;
+						return false;
 					}
 				}
 
@@ -202,30 +225,26 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 						checkmate = VerifyAllMove(kingsPiece[i]);
 					}
 				}
-
-				if (isWhite != nullptr)
-				{
-					*isWhite = !(*isWhite);
-				}
-				return false;
+				return true;
 			}
 		}
 	}
 	return false;
 }
 
-void Board::MovePieceIA(bool* isWhite, Piece* pieceToMove, sf::Vector2i move, bool& checkmate)
+void Board::MovePieceIA(bool* isWhite, sf::Vector2i piecePos, sf::Vector2i move, bool& checkmate)
 {
 	int col = move.x;
 	int line = move.y;
 	int column = col;
+	Piece* pieceToMove = boardCells[piecePos.y][piecePos.x].GetPiece();
 	//roc
-	if (boardCells[line][col].GetPiece() != nullptr && pieceToMove->white == boardCells[line][col].GetPiece()->white)
+	if (boardCells[line][col].GetPiece() != nullptr && boardCells[piecePos.y][piecePos.x].GetPiece()->white == boardCells[line][col].GetPiece()->white)
 	{
-		int colSelected = pieceToMove->pos.x;
+		int colSelected = piecePos.x;
+		
 		column = col < colSelected ? ++column : --column;
 		Piece* piece = boardCells[line][col].GetPiece();
-
 		pieceToMove->asMove = true;
 
 		piece->pos.x = col < colSelected ? pieceToMove->pos.x - 1 : pieceToMove->pos.x + 1;
@@ -264,11 +283,6 @@ void Board::MovePieceIA(bool* isWhite, Piece* pieceToMove, sf::Vector2i move, bo
 		{
 			checkmate = VerifyAllMove(kingsPiece[i]);
 		}
-	}
-
-	if (isWhite != nullptr)
-	{
-		*isWhite = !(*isWhite);
 	}
 }
 
@@ -598,6 +612,7 @@ void Board::InitializeMoves()
 			Piece* piece = cell.GetPiece();
 			if (piece != nullptr)
 			{
+				piece->possibleMoves.clear();
 				piece->CalculatePossibleMove(&boardCells);
 			}
 		}

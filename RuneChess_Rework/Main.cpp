@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "GameManager.h"
-
+#include <thread>
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(1900, 800), "Rune Chess", sf::Style::Titlebar | sf::Style::Close);
@@ -18,7 +18,6 @@ int main()
 			{
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
-					std::cout << "click" << std::endl;
 					gm->onClick(sf::Mouse::getPosition(window));
 				}
 			}
@@ -26,8 +25,11 @@ int main()
 
 		window.clear(sf::Color(204, 204, 255));
 		gm->Display();
+		gm->changeTurn();
 		window.display();
+		
 	}
 
 	return 0;
 }
+

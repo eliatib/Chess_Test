@@ -25,7 +25,7 @@ void GameManager::onClick(sf::Vector2i pos)
 			//verifRune ? launchRune
 			if (SelectedPiece != nullptr)
 			{
-				waitForPromotion = board->MovePiece(&isWhiteTurn, pos.x, pos.y, SelectedPiece, checkmate);
+				hasPlay = board->MovePiece(&isWhiteTurn, pos.x, pos.y, SelectedPiece, checkmate, waitForPromotion);
 				board->DeselectPiece(SelectedPiece);
 				if (!waitForPromotion)
 				{
@@ -43,6 +43,7 @@ void GameManager::onClick(sf::Vector2i pos)
 			if (!waitForPromotion)
 			{
 				SelectedPiece = nullptr;
+				hasPlay = true;
 			}
 		}
 
@@ -62,17 +63,33 @@ void GameManager::Display()
 	else
 	{
 		board->Display(SelectedPiece);
-		if (againstIA && !isWhiteTurn && !iaIsPlaying)
-		{
-			iaIsPlaying = true;
-			std::cout << "here" << std::endl;
-			ia->Play(currentWindow, board, &isWhiteTurn, checkmate);
-			iaIsPlaying = false;
-			isWhiteTurn = true;
-		}
 		if (waitForPromotion)
 		{
 			board->DisplayPromotion(SelectedPiece);
 		}
+	}
+}
+
+void GameManager::changeTurn()
+{
+	if (againstIA && !isWhiteTurn && !iaPlaying)
+	{
+		board->writeBoard();
+		iaPlaying = true;
+		std::vector <sf::Vector2i> move = ia->Play(currentWindow, board, &isWhiteTurn, checkmate);
+		board->MovePieceIA(&isWhiteTurn, move[0], move[1], checkmate);
+		hasPlay = true;
+		iaPlaying = false;
+		if (SelectedPiece != nullptr)
+		{
+			board->DeselectPiece(SelectedPiece);
+			SelectedPiece = nullptr;
+		}
+		board->writeBoard();
+	}
+	if(!waitForPromotion && hasPlay)
+	{
+		isWhiteTurn = !isWhiteTurn;
+		hasPlay = false;
 	}
 }

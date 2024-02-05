@@ -1,17 +1,18 @@
 #include "IA.h"
 
-void IA::Play(sf::RenderWindow* window, Board* board, bool* isWhite, bool& checkmate)
+std::vector <sf::Vector2i> IA::Play(sf::RenderWindow* window, Board board, bool* isWhite, bool& checkmate)
 {
-	std::cout << "begin check" << std::endl;
 	ChooseMove(board);
-	std::cout << "end check" << std::endl;
-	board->MovePieceIA(isWhite, pieceToMove, bestMove, checkmate);
+	std::vector <sf::Vector2i> move;
+	move.push_back(piecePos);
+	move.push_back(bestMove);
+	return move;
 }
 
-void IA::ChooseMove(Board* board)
+void IA::ChooseMove(Board board)
 {
-	std::vector<Piece*> pieces = board->GetPieces();
-	MiniMax(board, board->GetBoard(), pieces, 2, false);
+	std::vector<Piece*> pieces = board.GetPieces();
+	MiniMax(board, board->GetBoard(), pieces, ite, false);
 }
 
 int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<Piece*> pieces, int iteration, bool isWhite)
@@ -42,12 +43,12 @@ int IA::MiniMax(Board* board, std::vector<std::vector<Cell>> cells, std::vector<
 			{
 				for (int y = 0; y < pieces[i]->possibleMoves.size(); y++)
 				{
-					std::cout << "pos :" << copyPos.x << " " << copyPos.y << " move : " << pieces[i]->possibleMoves[y].x << " " << pieces[i]->possibleMoves[y].y << " " << iteration << std::endl;
+					//std::cout << "pos :" << copyPos.x << " " << copyPos.y << " move : " << pieces[i]->possibleMoves[y].x << " " << pieces[i]->possibleMoves[y].y << " " << iteration << std::endl;
 					TestMove(&cells, pieces[i], pieces[i]->possibleMoves[y]);//do move
 
 					newEval = isWhite ? std::max(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite)) : std::min(eval, MiniMax(board, cells, pieces, iteration - 1, !isWhite));
 
-					if (pieces[i]->possibleMoves.size() != 0 && newEval != eval)
+					if (pieces[i]->possibleMoves.size() != 0 && newEval != eval && iteration == ite)
 					{
 						bestMove = pieces[i]->possibleMoves[y];
 						pieceToMove = pieces[i];

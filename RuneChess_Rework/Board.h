@@ -21,12 +21,13 @@ public:
 	Board(int width, int height, sf::RenderWindow* window);
 
 	void Display(Piece* SelectedPiece);
+	void writeBoard();
 	void DisplayPromotion(Piece* SelectedPiece);
 	bool ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhite, bool& checkmate);
 	Piece* SelectPiece(bool isWhite, float x, float y);
 	void DeselectPiece(Piece* piece);
-	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate);
-	void MovePieceIA(bool* isWhite, Piece* pieceToMove, sf::Vector2i move, bool& checkmate);
+	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate, bool& waitForPromotion);
+	void MovePieceIA(bool* isWhite, sf::Vector2i piecePos, sf::Vector2i move, bool& checkmate);
 	std::vector< std::vector< Cell > > GetBoard();
 	std::vector< Piece* > GetPieces();
 	void CreateTexturePiece(Piece* piece);

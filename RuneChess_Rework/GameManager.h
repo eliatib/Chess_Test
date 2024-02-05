@@ -1,6 +1,17 @@
+
+
+
 #ifndef GAME_MANAGER
 #define GAME_MANAGER
+#define NOMINMAX
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
+#include <iostream>
+#include <cstdlib>
 #include <SFML/Graphics.hpp>
 #include "Board.h"
 #include "Cell.h"
@@ -16,14 +27,15 @@ public:
 	GameManager(sf::RenderWindow* window = nullptr);
 	~GameManager();
 	void onClick(sf::Vector2i pos);
-
+	void changeTurn();
 	void Display();
 private:
 	bool isWhiteTurn = true;
+	bool hasPlay = false;
+	bool iaPlaying = false;
 	bool waitForPromotion = false;
 	bool inMenu = true;
 	bool againstIA = false;
-	bool iaIsPlaying = false;
 	Piece* SelectedPiece;
 	Board* board = nullptr;
 	Menu* menu = nullptr;
