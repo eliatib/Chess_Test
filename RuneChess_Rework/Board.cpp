@@ -18,25 +18,29 @@ void Board::Display(Piece* SelectedPiece)
 	{
 		for (int col = 0; col < boardCells[line].size(); col++)
 		{
-			Cell cell = boardCells[line][col];
+			Cell* cell = boardCells[line][col];
 			//Squares
-			gameWindow->draw(cell.GetRect());
+			gameWindow->draw(cell->GetRect());
 			//Pieces
-			Piece* piece = cell.GetPiece();
+			Piece* piece = cell->GetPiece();
 			if (piece != nullptr)
 			{
 				sf::Sprite sprite = piece->pieceSprite;
-				sprite.setPosition(cell.GetRect().getPosition().x + 10, cell.GetRect().getPosition().y + 10);
+				sprite.setPosition(cell->GetRect().getPosition().x + 10, cell->GetRect().getPosition().y + 10);
 				gameWindow->draw(sprite);
 			}
 			//Move
 			if (SelectedPiece != nullptr)
 			{
-				sf::Vector2i pos = sf::Vector2i(col, line);
-				std::vector< sf::Vector2i > moves = SelectedPiece->possibleMoves;
-				if (std::find(moves.begin(), moves.end(), pos) != moves.end())
+				for (int line = 0; line < boardCells.size(); line++)
 				{
-					gameWindow->draw(cell.GetCircle());
+					for (int col = 0; col < boardCells[line].size(); col++)
+					{
+						if (boardCells[line][col]->GetShowMove())
+						{
+							gameWindow->draw(boardCells[line][col]->GetCircle());
+						}
+					}
 				}
 			}
 		}
@@ -50,7 +54,7 @@ void Board::writeBoard()
 		std::cout << "----------------------------------------------------------------------------------" << std::endl;
 		for (int col = 0; col < boardCells[line].size(); col++)
 		{
-			Piece* piece = boardCells[line][col].GetPiece();
+			Piece* piece = boardCells[line][col]->GetPiece();
 			if (piece == nullptr)
 			{
 				std::cout << " ";
@@ -123,10 +127,6 @@ bool Board::ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhit
 					checkmate = VerifyAllMove(kingsPiece[i]);
 				}
 			}
-			if (isWhite != nullptr)
-			{
-				*isWhite = !(*isWhite);
-			}
 
 			return false;
 		}
@@ -136,22 +136,22 @@ bool Board::ChoosePromotion(Piece* SelectedPiece, float x, float y, bool* isWhit
 
 Piece* Board::SelectPiece(bool isWhite, float x, float y)
 {
-	for (std::vector < Cell > cellLine : boardCells)
+	for (std::vector < Cell* > cellLine : boardCells)
 	{
-		for (Cell cell : cellLine)
+		for (Cell* cell : cellLine)
 		{
-			sf::RectangleShape rect = cell.GetRect();
+			sf::RectangleShape rect = cell->GetRect();
 			sf::Vector2f pos = rect.getPosition();
 			sf::Vector2f size = rect.getSize();
 			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y)
 			{
-				Piece* piece = cell.GetPiece();
+				Piece* piece = cell->GetPiece();
 				if (piece != nullptr && piece->white == isWhite)
 				{
 					piece->pieceSprite.setColor(sf::Color(255, 255, 255, 128));
 					for (sf::Vector2i move : piece->possibleMoves)
 					{
-						boardCells[move.y][move.x].SetShowMove(true);
+						boardCells[move.y][move.x]->SetShowMove(true);
 					}
 					return piece;
 				}
@@ -165,10 +165,12 @@ Piece* Board::SelectPiece(bool isWhite, float x, float y)
 void Board::DeselectPiece(Piece* piece)
 {
 	piece->pieceSprite.setColor(sf::Color(255, 255, 255, 255));
-	for (int i = 0; i < piece->possibleMoves.size(); i++)
+	for (int line = 0; line < boardCells.size(); line++)
 	{
-		sf::Vector2i pos = piece->possibleMoves[i];
-		boardCells[pos.y][pos.x].SetShowMove(false);
+		for (int col = 0; col < boardCells[line].size(); col++)
+		{
+			boardCells[line][col]->SetShowMove(false);
+		}
 	}
 }
 
@@ -178,34 +180,34 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 	{
 		for (int col = 0; col < boardCells[line].size(); col++)
 		{
-			sf::RectangleShape rect = boardCells[line][col].GetRect();
+			sf::RectangleShape rect = boardCells[line][col]->GetRect();
 			sf::Vector2f pos = rect.getPosition();
 			sf::Vector2f size = rect.getSize();
-			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y && boardCells[line][col].GetShowMove())
+			if (pos.x < x && pos.x + size.x > x && pos.y < y && pos.y + size.y > y && boardCells[line][col]->GetShowMove())
 			{
 				int column = col;
 				//roc
-				if (boardCells[line][col].GetPiece() != nullptr && SelectedPiece->white == boardCells[line][col].GetPiece()->white)
+				if (boardCells[line][col]->GetPiece() != nullptr && SelectedPiece->white == boardCells[line][col]->GetPiece()->white)
 				{
 					int colSelected = SelectedPiece->pos.x;
 					column = col < colSelected ? ++column : --column;
-					Piece* piece = boardCells[line][col].GetPiece();
+					Piece* piece = boardCells[line][col]->GetPiece();
 
 					SelectedPiece->asMove = true;
 
 					piece->pos.x = col < colSelected ? SelectedPiece->pos.x - 1 : SelectedPiece->pos.x + 1;
 
-					piece->currentCell = &boardCells[piece->pos.y][piece->pos.x];
-					boardCells[line][col].SetPiece(nullptr);
-					boardCells[piece->pos.y][piece->pos.x].SetPiece(piece);
+					piece->currentCell = boardCells[piece->pos.y][piece->pos.x];
+					boardCells[line][col]->SetPiece(nullptr);
+					boardCells[piece->pos.y][piece->pos.x]->SetPiece(piece);
 				}
 				SelectedPiece->pos = sf::Vector2i(column, line);
 				SelectedPiece->asMove = true;
 
-				boardCells[line][column].SetPiece(SelectedPiece);
+				boardCells[line][column]->SetPiece(SelectedPiece);
 				SelectedPiece->currentCell->SetPiece(nullptr);
 
-				SelectedPiece->currentCell = &boardCells[line][column];
+				SelectedPiece->currentCell = boardCells[line][column];
 
 				if (typeid(*SelectedPiece) == typeid(Pawn))
 				{
@@ -214,7 +216,7 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 					{
 						CreateSpritePromotion(SelectedPiece);
 						waitForPromotion = true;
-						return false;
+						return true;
 					}
 				}
 
@@ -237,29 +239,30 @@ void Board::MovePieceIA(bool* isWhite, sf::Vector2i piecePos, sf::Vector2i move,
 	int col = move.x;
 	int line = move.y;
 	int column = col;
-	Piece* pieceToMove = boardCells[piecePos.y][piecePos.x].GetPiece();
+	Piece* pieceToMove = boardCells[piecePos.y][piecePos.x]->GetPiece();
+	std::cout << piecePos.x << " " << piecePos.y << " to " << move.x << " " << move.y << std::endl;
 	//roc
-	if (boardCells[line][col].GetPiece() != nullptr && boardCells[piecePos.y][piecePos.x].GetPiece()->white == boardCells[line][col].GetPiece()->white)
+	if (boardCells[line][col]->GetPiece() != nullptr && boardCells[piecePos.y][piecePos.x]->GetPiece()->white == boardCells[line][col]->GetPiece()->white)
 	{
 		int colSelected = piecePos.x;
 		
 		column = col < colSelected ? ++column : --column;
-		Piece* piece = boardCells[line][col].GetPiece();
+		Piece* piece = boardCells[line][col]->GetPiece();
 		pieceToMove->asMove = true;
 
 		piece->pos.x = col < colSelected ? pieceToMove->pos.x - 1 : pieceToMove->pos.x + 1;
 
-		piece->currentCell = &boardCells[piece->pos.y][piece->pos.x];
-		boardCells[line][col].SetPiece(nullptr);
-		boardCells[piece->pos.y][piece->pos.x].SetPiece(piece);
+		piece->currentCell = boardCells[piece->pos.y][piece->pos.x];
+		boardCells[line][col]->SetPiece(nullptr);
+		boardCells[piece->pos.y][piece->pos.x]->SetPiece(piece);
 	}
 	pieceToMove->pos = sf::Vector2i(column, line);
 	pieceToMove->asMove = true;
 
-	boardCells[line][column].SetPiece(pieceToMove);
+	boardCells[line][column]->SetPiece(pieceToMove);
 	pieceToMove->currentCell->SetPiece(nullptr);
 
-	pieceToMove->currentCell = &boardCells[line][column];
+	pieceToMove->currentCell = boardCells[line][column];
 
 	if (typeid(*pieceToMove) == typeid(Pawn))
 	{
@@ -286,7 +289,7 @@ void Board::MovePieceIA(bool* isWhite, sf::Vector2i piecePos, sf::Vector2i move,
 	}
 }
 
-std::vector<std::vector<Cell>> Board::GetBoard()
+std::vector<std::vector<Cell*>> Board::GetBoard()
 {
 	return boardCells;
 }
@@ -330,7 +333,7 @@ void Board::createBoard(int width, int height)
 	boardSize = sf::Vector2f(width, height);
 	for (int boardHeight = 0; boardHeight < height; boardHeight++)
 	{
-		std::vector < Cell > line;
+		std::vector < Cell* > line;
 		for (int boardWidth = 0; boardWidth < width; boardWidth++)
 		{
 			sf::RectangleShape rect;
@@ -340,7 +343,7 @@ void Board::createBoard(int width, int height)
 				(gameWindow->getSize().y / 2) - (cellSize * (height / 2)) + (cellSize * boardHeight)
 			));
 			rect.setSize(sf::Vector2f(cellSize, cellSize));
-			Cell cell = Cell(rect);
+			Cell* cell = new Cell(rect);
 			line.push_back(cell);
 		}
 		boardCells.push_back(line);
@@ -394,7 +397,7 @@ void Board::createPieces()
 				spriteX = 1;
 				break;
 			case('B'):
-				piece = new Bishop;
+				piece = new Bishop();
 				spriteX = 2;
 				break;
 			case('N'):
@@ -402,7 +405,7 @@ void Board::createPieces()
 				spriteX = 3;
 				break;
 			case('R'):
-				piece = new Rook;
+				piece = new Rook();
 				spriteX = 4;
 				break;
 			default:
@@ -419,13 +422,14 @@ void Board::createPieces()
 			piece->pieceSprite = sprite;
 			piece->white = isWhite;
 			piece->pos = sf::Vector2i(col, line);
-			piece->currentCell = &boardCells[line][col];
+			piece->currentCell = boardCells[line][col];
+			piece->character = c;
 			if (typeid(*piece) == typeid(King))
 			{
 				kingsPiece.push_back(piece);
 			}
 			pieces.push_back(piece);
-			boardCells[line][col].SetPiece(piece);
+			boardCells[line][col]->SetPiece(piece);
 			col++;
 		}
 	}
@@ -476,7 +480,7 @@ bool Board::VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i
 				{
 					int y = line + (i * down);
 					int x = col + (i * right);
-					Piece* piece = boardCells[y][x].GetPiece();
+					Piece* piece = boardCells[y][x]->GetPiece();
 					if (piece == nullptr || (x == pos.x && y == pos.y))
 					{
 						continue;
@@ -507,7 +511,7 @@ bool Board::VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i
 			{
 				int x = col + (i * right);
 				int y = line + (i * down);
-				Piece* piece = boardCells[y][x].GetPiece();
+				Piece* piece = boardCells[y][x]->GetPiece();
 				if (piece == nullptr || (x == pos.x && y == pos.y))
 				{
 					continue;
@@ -542,7 +546,7 @@ bool Board::VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i
 
 				if (x >= 0 && x < boardCells[y].size())
 				{
-					Piece* piece = boardCells[y][x].GetPiece();
+					Piece* piece = boardCells[y][x]->GetPiece();
 					if (piece == nullptr)
 					{
 						continue;
@@ -562,11 +566,11 @@ bool Board::VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i
 bool Board::VerifyAllMove(Piece* king)
 {
 	bool checkmate = true;
-	for (std::vector < Cell > cellLine : boardCells)
+	for (std::vector < Cell* > cellLine : boardCells)
 	{
-		for (Cell cell : cellLine)
+		for (Cell* cell : cellLine)
 		{
-			Piece* piece = cell.GetPiece();
+			Piece* piece = cell->GetPiece();
 			if (piece != nullptr && piece->white == king->white)
 			{
 				piece->possibleMoves.clear();
@@ -605,11 +609,11 @@ bool Board::VerifyAllMove(Piece* king)
 
 void Board::InitializeMoves()
 {
-	for (std::vector < Cell > cellLine : boardCells)
+	for (std::vector < Cell* > cellLine : boardCells)
 	{
-		for (Cell cell : cellLine)
+		for (Cell* cell : cellLine)
 		{
-			Piece* piece = cell.GetPiece();
+			Piece* piece = cell->GetPiece();
 			if (piece != nullptr)
 			{
 				piece->possibleMoves.clear();

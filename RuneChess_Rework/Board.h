@@ -28,9 +28,10 @@ public:
 	void DeselectPiece(Piece* piece);
 	bool MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, bool& checkmate, bool& waitForPromotion);
 	void MovePieceIA(bool* isWhite, sf::Vector2i piecePos, sf::Vector2i move, bool& checkmate);
-	std::vector< std::vector< Cell > > GetBoard();
+	std::vector< std::vector< Cell* > > GetBoard();
 	std::vector< Piece* > GetPieces();
 	void CreateTexturePiece(Piece* piece);
+	void InitializeMoves();
 
 private:
 	void createBoard(int width, int height);
@@ -39,12 +40,12 @@ private:
 	void CreateSpritePromotion(Piece* selectedPiece);
 	bool VerifyKingNotinCheck(Piece* king, sf::Vector2i kingPos, sf::Vector2i pos, sf::Vector2i move);
 	bool VerifyAllMove(Piece* king);
-	void InitializeMoves();
+	
 	std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 	Piece* inCheckPiece;
 	std::vector< Piece* > kingsPiece;
 	std::vector< Piece* > pieces;
-	std::vector< std::vector< Cell > > boardCells;
+	std::vector< std::vector< Cell* > > boardCells;
 	sf::Texture pieceTexture;
 	sf::Texture RuneTexture;
 	std::vector<sf::Sprite> SpritePromotion;

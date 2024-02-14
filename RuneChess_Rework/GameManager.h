@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <SFML/Graphics.hpp>
 #include "Board.h"
+#include <thread>
 #include "Cell.h"
 #include "Piece.h"
 #include "Menu.h"
@@ -28,11 +29,11 @@ public:
 	~GameManager();
 	void onClick(sf::Vector2i pos);
 	void changeTurn();
+	void playIA();
 	void Display();
 private:
 	bool isWhiteTurn = true;
 	bool hasPlay = false;
-	bool iaPlaying = false;
 	bool waitForPromotion = false;
 	bool inMenu = true;
 	bool againstIA = false;
