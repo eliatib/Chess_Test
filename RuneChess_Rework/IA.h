@@ -16,4 +16,6 @@ private:
 	void recreatePiece( std::vector<std::vector<Cell*>>* cells, char c, sf::Vector2i pos, bool isWhite, bool asMove);
 	int countPoint(std::vector<std::vector<Cell*>> cells);
 	void TestMove(std::vector<std::vector<Cell*>>* cells, Piece* piece, sf::Vector2i move);
+	bool VerifyKingNotinCheck(Piece* king, std::vector<std::vector<Cell*>> cells, sf::Vector2i kingPos, sf::Vector2i pos, sf::Vector2i move);
+	bool VerifyAllMove(Piece* king, std::vector<std::vector<Cell*>> cells);
 };

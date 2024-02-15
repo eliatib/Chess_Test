@@ -220,6 +220,8 @@ bool Board::MovePiece(bool* isWhite, float x, float y, Piece* SelectedPiece, boo
 					}
 				}
 
+				std::cout << "here                          " << SelectedPiece->white;
+
 				for (int i = 0; i < kingsPiece.size(); i++)
 				{
 					if (*isWhite != kingsPiece[i]->white)
