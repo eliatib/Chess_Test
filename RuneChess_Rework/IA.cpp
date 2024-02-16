@@ -129,15 +129,6 @@ int IA::MiniMax(std::vector<std::vector<Cell*>> cells, int iteration, bool isWhi
 	}
 	int eval = isWhite ? -99999 : 99999;
 	int newEval = eval;
-	for (int line = 0; line < cells.size(); line++)
-	{
-		for (int col = 0; col < cells[line].size(); col++)
-		{
-			Piece* piece = cells[line][col]->GetPiece();
-			piece->possibleMoves.clear();
-			piece->CalculatePossibleMove(&cells);
-		}
-	}
 
 	for (int line = 0; line < cells.size(); line++)
 	{
@@ -152,30 +143,36 @@ int IA::MiniMax(std::vector<std::vector<Cell*>> cells, int iteration, bool isWhi
 				bool copyWhite = piece->white;
 				char copyType = piece->character;
 
+				std::vector< sf::Vector2i > copyPossibleMoves = piece->possibleMoves;
+
 				if (piece->possibleMoves.size() != 0)
 				{
-					for (int y = 0; y < piece->possibleMoves.size(); y++)
+					for (int y = 0; y < copyPossibleMoves.size(); y++)
 					{
 						sf::Vector2i copyEPPos;
 						bool copyEPAsMove = false;
 						bool copyEPWhite = false;
 						char copyEPType = ' ';
-						if (cells[piece->possibleMoves[y].y][piece->possibleMoves[y].x]->GetPiece() != nullptr)
+						if (cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->GetPiece() != nullptr)
 						{
-							Piece* eatenPiece = cells[piece->possibleMoves[y].y][piece->possibleMoves[y].x]->GetPiece();
+							Piece* eatenPiece = cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->GetPiece();
 							copyEPPos = eatenPiece->pos;
 							copyEPAsMove = eatenPiece->asMove;
 							copyEPWhite = eatenPiece->white;
 							copyEPType = eatenPiece->character;
 						}
 						
-						TestMove(&cells, piece ,piece->possibleMoves[y]);//do move
+						if(piece->character == 'P' && piece->pos.x == 7 && copyPossibleMoves[y].x == 7)
+						{
+							std::cout;
+						}
+						TestMove(&cells, piece , copyPossibleMoves[y]);//do move
 
 						newEval = isWhite ? std::max(eval, MiniMax(cells, iteration - 1, false)) : std::min(eval, MiniMax(cells, iteration - 1, true));
 
-						if (piece->possibleMoves.size() != 0 && newEval != eval && iteration == ite)
+						if (copyPossibleMoves.size() != 0 && newEval != eval && iteration == ite)
 						{
-							bestMove = piece->possibleMoves[y];
+							bestMove = copyPossibleMoves[y];
 							piecePos = copyPos;
 						}
 
@@ -187,7 +184,7 @@ int IA::MiniMax(std::vector<std::vector<Cell*>> cells, int iteration, bool isWhi
 						}
 						else
 						{
-							cells[piece->possibleMoves[y].y][piece->possibleMoves[y].x]->SetPiece(nullptr);
+							cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->SetPiece(nullptr);
 						}
 
 						recreatePiece(&cells, copyType, copyPos, copyWhite, copyAsMove);
@@ -255,148 +252,4 @@ void IA::TestMove(std::vector<std::vector<Cell*>>* cells, Piece* piece, sf::Vect
 		newPiece->character = piece->white ? 'q' : 'Q';
 		piece = newPiece;
 	}
-}
-
-bool IA::VerifyKingNotinCheck(Piece* king, std::vector<std::vector<Cell*>> cells, sf::Vector2i kingPos, sf::Vector2i pos = sf::Vector2i(-1, -1), sf::Vector2i move = sf::Vector2i(-1, -1))
-{
-	int line = kingPos.y;
-	int col = kingPos.x;
-	//R,Q
-	for (int right = -1; right < 2; right++)
-	{
-		for (int down = -1; down < 2; down++)
-		{
-			if ((right != 0 || down != 0) && (right == 0 || down == 0))
-			{
-				for (int i = 1;
-					line + (i * down) >= 0 && line + (i * down) < cells.size() && col + (i * right) >= 0 && col + (i * right) < cells[line + (i * down)].size();
-					i++)
-				{
-					int y = line + (i * down);
-					int x = col + (i * right);
-					Piece* piece = cells[y][x]->GetPiece();
-					if (piece == nullptr || (x == pos.x && y == pos.y))
-					{
-						continue;
-					}
-					else if (x == move.x && y == move.y)
-					{
-						break;
-					}
-					else if ((typeid(*piece) == typeid(Rook) || typeid(*piece) == typeid(Queen)) && piece->white != king->white)
-					{
-						return true;
-					}
-					break;
-				}
-			}
-		}
-	}
-	//P,B,Q
-	for (int right = -1; right < 2; right += 2)
-	{
-		for (int down = -1; down < 2; down += 2)
-		{
-			for (
-				int i = 1;
-				line + (i * down) >= 0 && line + (i * down) < cells.size() && col + (i * right) >= 0 && col + (i * right) < cells[line + (i * down)].size();
-				i++
-				)
-			{
-				int x = col + (i * right);
-				int y = line + (i * down);
-				Piece* piece = cells[y][x]->GetPiece();
-				if (piece == nullptr || (x == pos.x && y == pos.y))
-				{
-					continue;
-				}
-				else
-				{
-					int sens = piece->white ? 1 : -1;
-					if (x == move.x && y == move.y)
-					{
-						break;
-					}
-					else if ((typeid(*piece) == typeid(Bishop) || typeid(*piece) == typeid(Queen) || (i == 1 && typeid(*piece) == typeid(Pawn) && down == sens)) && piece->white != king->white)
-					{
-						return true;
-					}
-				}
-				break;
-			}
-		}
-	}
-	//N
-	for (int i = -2; i <= 2; i++)
-	{
-		int y = line + i;
-		if (y >= 0 && y < cells.size())
-		{
-			int dec = std::abs(i) == 2 ? 1 : std::abs(i) == 1 ? 2 : -1;
-
-			for (int j = -1 * dec; j <= 1 * dec; j = j + (2 * dec))
-			{
-				int x = col + j;
-
-				if (x >= 0 && x < cells[y].size())
-				{
-					Piece* piece = cells[y][x]->GetPiece();
-					if (piece == nullptr)
-					{
-						continue;
-					}
-					else if (typeid(*piece) == typeid(Knight) && piece->white != king->white)
-					{
-						return true;
-					}
-					break;
-				}
-			}
-		}
-	}
-	return false;
-}
-
-bool IA::VerifyAllMove(Piece* king, std::vector<std::vector<Cell*>> cells)
-{
-	bool checkmate = true;
-	for (std::vector < Cell* > cellLine : cells)
-	{
-		for (Cell* cell : cellLine)
-		{
-			Piece* piece = cell->GetPiece();
-			if (piece != nullptr && piece->white == king->white)
-			{
-				piece->possibleMoves.clear();
-				piece->CalculatePossibleMove(&cells);
-				std::vector< sf::Vector2i >* possibleMoves = &piece->possibleMoves;
-				sf::Vector2i pos = piece->pos;
-				int i = 0;
-				while (i < possibleMoves->size())
-				{
-					bool fCheck;
-					if (typeid(*piece) == typeid(King))
-					{
-						fCheck = VerifyKingNotinCheck(king,cells, (*possibleMoves)[i], pos, (*possibleMoves)[i]);
-					}
-					else
-					{
-						fCheck = VerifyKingNotinCheck(king,cells, king->pos, pos, (*possibleMoves)[i]);
-					}
-					if (fCheck)
-					{
-						possibleMoves->erase(possibleMoves->begin() + i);
-						continue;
-					}
-					i++;
-				}
-
-				if (!possibleMoves->empty())
-				{
-					checkmate = false;
-				}
-			}
-		}
-	}
-	return checkmate;
 }
