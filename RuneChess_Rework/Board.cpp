@@ -576,7 +576,7 @@ bool Board::VerifyAllMove(Piece* king)
 			if (piece != nullptr && piece->white == king->white)
 			{
 				piece->possibleMoves.clear();
-				piece->CalculatePossibleMove(&boardCells);
+				piece->CalculatePossibleMove(boardCells);
 				std::vector< sf::Vector2i >* possibleMoves = &piece->possibleMoves;
 				sf::Vector2i pos = piece->pos;
 				int i = 0;
@@ -619,7 +619,7 @@ void Board::InitializeMoves()
 			if (piece != nullptr)
 			{
 				piece->possibleMoves.clear();
-				piece->CalculatePossibleMove(&boardCells);
+				piece->CalculatePossibleMove(boardCells);
 			}
 		}
 	}

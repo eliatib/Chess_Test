@@ -1,7 +1,7 @@
 #include "King.h"
 #include <iostream>
 
-void King::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
+void King::CalculatePossibleMove(std::vector<std::vector<Cell*>> boardCells)
 {
 	for (int i = -1; i < 2; i++)
 	{
@@ -10,8 +10,8 @@ void King::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 			int x = pos.x + i;
 			int y = pos.y + j;
 			if (
-				x >= 0 && y >= 0 && y < boardCells->size() && x < (*boardCells)[y].size()
-				&& ((*boardCells)[y][x]->GetPiece() == nullptr || (*boardCells)[y][x]->GetPiece()->white != white)
+				x >= 0 && y >= 0 && y < boardCells.size() && x < boardCells[y].size()
+				&& (boardCells[y][x]->GetPiece() == nullptr || boardCells[y][x]->GetPiece()->white != white)
 				)
 			{
 				possibleMoves.push_back(sf::Vector2i(
@@ -27,11 +27,11 @@ void King::CalculatePossibleMove(std::vector<std::vector<Cell*>>* boardCells)
 	{
 		for (int right = -1; right < 2; right += 2)
 		{
-			for (int i = 1; pos.x + (i * right) >= 0 && pos.x + (i * right) < (*boardCells)[pos.y].size(); i++)
+			for (int i = 1; pos.x + (i * right) >= 0 && pos.x + (i * right) < boardCells[pos.y].size(); i++)
 			{
 				int x = pos.x + (i * right);
 				int y = pos.y;
-				Piece* piece = (*boardCells)[y][x]->GetPiece();
+				Piece* piece = boardCells[y][x]->GetPiece();
 				if (piece == nullptr)
 				{
 					continue;

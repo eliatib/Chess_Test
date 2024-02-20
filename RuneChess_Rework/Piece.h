@@ -16,7 +16,7 @@ public:
 	 * Default destructor
 	 */
 	virtual ~Piece() {};
-	virtual void CalculatePossibleMove(std::vector< std::vector< Cell* > >* boardCells) {};
+	virtual void CalculatePossibleMove(std::vector< std::vector< Cell* > > boardCells) {};
 	virtual int GetPoint() { return 0; };
 
 	bool white{ true };

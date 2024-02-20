@@ -24,6 +24,7 @@
     <ProjectGuid>{1b50c533-8e88-4181-8270-b19cd086a9c6}</ProjectGuid>
     <RootNamespace>RuneChessRework</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Chess</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -147,8 +148,6 @@
     <ClCompile Include="Piece.cpp" />
     <ClCompile Include="Queen.cpp" />
     <ClCompile Include="Rook.cpp" />
-    <ClCompile Include="Rune.cpp" />
-    <ClCompile Include="SacrificialPawn.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextBubble.cpp" />
   </ItemGroup>
@@ -166,8 +165,6 @@
     <ClInclude Include="Piece.h" />
     <ClInclude Include="Queen.h" />
     <ClInclude Include="Rook.h" />
-    <ClInclude Include="Rune.h" />
-    <ClInclude Include="SacrificialPawn.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextBubble.h" />
   </ItemGroup>

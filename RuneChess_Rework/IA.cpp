@@ -36,51 +36,22 @@ void IA::writeBoard(std::vector<std::vector<Cell*>> boardCells)
 	}
 }
 
-void IA::recreatePiece(std::vector<std::vector<Cell*>>* cells, char c, sf::Vector2i pos, bool isWhite, bool asMove)
-{
-	Piece* newPiece = new Piece();
-	switch (toupper(c))
-	{
-	case('K'):
-		newPiece = new King();
-		break;
-	case('Q'):
-		newPiece = new Queen();
-		break;
-	case('B'):
-		newPiece = new Bishop();
-		break;
-	case('N'):
-		newPiece = new Knight();
-		break;
-	case('R'):
-		newPiece = new Rook();
-		break;
-	default:
-		newPiece = new Pawn();
-		break;
-	}
-
-	newPiece->white = isWhite;
-	newPiece->asMove = asMove;
-	newPiece->pos = pos;
-	newPiece->character = c;
-	newPiece->currentCell = (*cells)[pos.y][pos.x];
-	newPiece->currentCell->SetPiece(newPiece);
-	newPiece->possibleMoves.clear();
-	newPiece->CalculatePossibleMove(cells);
-}
-
 void IA::ChooseMove(Board board)
 {
-	std::vector<std::vector<Cell*>> cells = board.GetBoard();
+	std::vector<std::vector<Cell*>> cells = MakeBoardCopy(board.GetBoard());
+	MiniMax(cells, -99999, 99999, ite, false);
+}
+
+std::vector<std::vector<Cell*>> IA::MakeBoardCopy(std::vector<std::vector<Cell*>> cellsToCopy)
+{
+	std::vector<std::vector<Cell*>> cells = cellsToCopy;
 	for (int line = 0; line < cells.size(); line++)
 	{
 		std::vector<Cell*> lines;
 		for (int col = 0; col < cells[line].size(); col++)
 		{
 			Cell* newCell = new Cell(cells[line][col]->GetRect());
-			if(cells[line][col]->GetPiece() != nullptr)
+			if (cells[line][col]->GetPiece() != nullptr)
 			{
 				Piece* pieceToCopy = cells[line][col]->GetPiece();
 				Piece* newPiece = new Piece();
@@ -109,19 +80,22 @@ void IA::ChooseMove(Board board)
 				newPiece->pos = pieceToCopy->pos;
 				newPiece->white = pieceToCopy->white;
 				newPiece->character = pieceToCopy->character;
+				newPiece->possibleMoves = pieceToCopy->possibleMoves;
 				newPiece->currentCell = newCell;
 				newCell->SetPiece(newPiece);
+			}
+			else
+			{
+				newCell->SetPiece(nullptr);
 			}
 
 			cells[line][col] = newCell;
 		}
 	}
-	writeBoard(cells);
-	MiniMax(cells, ite, false);
-	writeBoard(cells);
+	return cells;
 }
 
-int IA::MiniMax(std::vector<std::vector<Cell*>> cells, int iteration, bool isWhite)
+int IA::MiniMax(std::vector<std::vector<Cell*>> cells,int alpha, int beta, int iteration, bool isWhite)
 {
 	if (iteration <= 0)
 	{
@@ -137,58 +111,52 @@ int IA::MiniMax(std::vector<std::vector<Cell*>> cells, int iteration, bool isWhi
 			Piece* piece = cells[line][col]->GetPiece();
 			if(piece != nullptr && piece->white == isWhite)
 			{
-				//copy piece element
-				sf::Vector2i copyPos = piece->pos;
-				bool copyAsMove = piece->asMove;
-				bool copyWhite = piece->white;
-				char copyType = piece->character;
+				std::vector<std::vector<Cell*>> cellsCopy = MakeBoardCopy(cells);
+				//copy board
+				piece->possibleMoves.clear();
+				piece->CalculatePossibleMove(cellsCopy);
 
-				std::vector< sf::Vector2i > copyPossibleMoves = piece->possibleMoves;
+				
+				if (iteration == ite)
+				{
+					writeBoard(cellsCopy);
+				}
 
 				if (piece->possibleMoves.size() != 0)
 				{
-					for (int y = 0; y < copyPossibleMoves.size(); y++)
+
+					for (int y = 0; y < piece->possibleMoves.size(); y++)
 					{
-						sf::Vector2i copyEPPos;
-						bool copyEPAsMove = false;
-						bool copyEPWhite = false;
-						char copyEPType = ' ';
-						if (cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->GetPiece() != nullptr)
-						{
-							Piece* eatenPiece = cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->GetPiece();
-							copyEPPos = eatenPiece->pos;
-							copyEPAsMove = eatenPiece->asMove;
-							copyEPWhite = eatenPiece->white;
-							copyEPType = eatenPiece->character;
-						}
-						
-						if(piece->character == 'P' && piece->pos.x == 7 && copyPossibleMoves[y].x == 7)
-						{
-							std::cout;
-						}
-						TestMove(&cells, piece , copyPossibleMoves[y]);//do move
+						//make_move
+						TestMove(&cells, piece , piece->possibleMoves[y]);//do move
+						newEval = isWhite ? std::max(eval, MiniMax(cells,alpha,beta, iteration - 1, false)) : std::min(eval, MiniMax(cells, alpha, beta, iteration - 1, true));
 
-						newEval = isWhite ? std::max(eval, MiniMax(cells, iteration - 1, false)) : std::min(eval, MiniMax(cells, iteration - 1, true));
+						// rollback
+						cells = cellsCopy;
+						Piece* piece = cells[line][col]->GetPiece();
 
-						if (copyPossibleMoves.size() != 0 && newEval != eval && iteration == ite)
+						//evaluate
+						if (newEval != eval && iteration == ite)
 						{
-							bestMove = copyPossibleMoves[y];
-							piecePos = copyPos;
+							bestMove = piece->possibleMoves[y];
+							piecePos = cells[line][col]->GetPiece()->pos;
 						}
 
 						eval = newEval;
 
-						if (copyEPType != ' ')
+						if(isWhite)
 						{
-							recreatePiece(&cells, copyEPType, copyEPPos, copyEPWhite, copyEPAsMove);
+							alpha = std::max(alpha, eval);
 						}
 						else
 						{
-							cells[copyPossibleMoves[y].y][copyPossibleMoves[y].x]->SetPiece(nullptr);
+							beta = std::min(beta, eval);
 						}
-
-						recreatePiece(&cells, copyType, copyPos, copyWhite, copyAsMove);
-
+						
+						if(beta <= alpha)
+						{
+							break;
+						}
 					}
 				}
 			}
