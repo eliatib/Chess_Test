@@ -31,6 +31,7 @@ public:
 	void changeTurn();
 	void playIA();
 	void Display();
+	void EndGame();
 private:
 	bool isWhiteTurn = true;
 	bool hasPlay = false;
@@ -45,6 +46,10 @@ private:
 	sf::RenderWindow* currentWindow;
 	std::vector< std::vector< Cell > > cells;
 	std::vector < sf::Sprite > boardPieces;
+	sf::RectangleShape endBG;
+	string winText;
+	Text* winner;
+	Button* comeBackMenu;
 };
 
 #endif // !GAME_MANAGER

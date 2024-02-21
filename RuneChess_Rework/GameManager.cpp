@@ -18,6 +18,16 @@ void GameManager::onClick(sf::Vector2i pos)
 	{
 		inMenu = menu->OnClick(currentWindow, pos, &againstIA);
 	}
+	else if(checkmate)
+	{
+		if(comeBackMenu->OnClick(pos))
+		{
+			inMenu = true;
+			checkmate = false;
+			board = new Board(8, 8, currentWindow);
+			isWhiteTurn = true;
+		}
+	}
 	else if ((againstIA && isWhiteTurn) || !againstIA)
 	{
 		if (!waitForPromotion && !hasPlay)
@@ -51,6 +61,7 @@ void GameManager::onClick(sf::Vector2i pos)
 		if (checkmate)
 		{
 			std::cout << "checkmate" << std::endl;
+			EndGame();
 		}
 	}
 }
@@ -61,6 +72,12 @@ void GameManager::Display()
 	{
 		menu->Display(currentWindow);
 	}
+	else if(checkmate)
+	{
+		currentWindow->draw(endBG);
+		winner->display(currentWindow);
+		comeBackMenu->Display(currentWindow);
+	}
 	else
 	{
 		board->Display(SelectedPiece);
@@ -69,6 +86,20 @@ void GameManager::Display()
 			board->DisplayPromotion(SelectedPiece);
 		}
 	}
+}
+
+void GameManager::EndGame()
+{
+	endBG.setPosition(0, 0);
+	endBG.setSize(sf::Vector2f(currentWindow->getSize().x, currentWindow->getSize().y));
+	endBG.setFillColor(sf::Color(0, 0, 0, 200));
+
+	winText = isWhiteTurn ? "White" : "Black";
+	winText += " Win";
+	winner = new Text(winText, "font/arial.ttf", 16);
+	winner->Center(sf::Vector2i(endBG.getPosition().x, endBG.getPosition().y), sf::Vector2u(endBG.getSize().x, (endBG.getSize().y / 3) * 2));
+
+	comeBackMenu = new Button(sf::Color::Blue, sf::Vector2u(150, 50), sf::Vector2i(currentWindow->getSize().x / 2 - 75, currentWindow->getSize().y / 2 - 75), "Go Back To Menu");
 }
 
 void GameManager::changeTurn()
@@ -95,6 +126,10 @@ void GameManager::playIA()
 	board->DeselectPiece(SelectedPiece);
 	SelectedPiece = nullptr;
 	}
-	board->InitializeMoves();
+
+	if(checkmate)
+	{
+		EndGame();
+	}
 	//board->writeBoard();
 }

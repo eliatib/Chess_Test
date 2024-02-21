@@ -111,29 +111,22 @@ int IA::MiniMax(std::vector<std::vector<Cell*>> cells,int alpha, int beta, int i
 			Piece* piece = cells[line][col]->GetPiece();
 			if(piece != nullptr && piece->white == isWhite)
 			{
-				std::vector<std::vector<Cell*>> cellsCopy = MakeBoardCopy(cells);
 				//copy board
 				piece->possibleMoves.clear();
-				piece->CalculatePossibleMove(cellsCopy);
-
-				
-				if (iteration == ite)
-				{
-					writeBoard(cellsCopy);
-				}
+				piece->CalculatePossibleMove(cells);
 
 				if (piece->possibleMoves.size() != 0)
 				{
-
 					for (int y = 0; y < piece->possibleMoves.size(); y++)
 					{
+						std::vector<std::vector<Cell*>> cellsCopy = MakeBoardCopy(cells);
 						//make_move
 						TestMove(&cells, piece , piece->possibleMoves[y]);//do move
 						newEval = isWhite ? std::max(eval, MiniMax(cells,alpha,beta, iteration - 1, false)) : std::min(eval, MiniMax(cells, alpha, beta, iteration - 1, true));
 
 						// rollback
 						cells = cellsCopy;
-						Piece* piece = cells[line][col]->GetPiece();
+						piece = cells[line][col]->GetPiece();
 
 						//evaluate
 						if (newEval != eval && iteration == ite)
@@ -190,15 +183,15 @@ void IA::TestMove(std::vector<std::vector<Cell*>>* cells, Piece* piece, sf::Vect
 	{
 		int colSelected = piece->pos.x;
 		column = move.x < colSelected ? ++column : --column;
-		Piece* piece = (*cells)[move.y][move.x]->GetPiece();
+		Piece* pieceToSwap = (*cells)[move.y][move.x]->GetPiece();
 
 		piece->asMove = true;
 
-		piece->pos.x = move.x < colSelected ? piece->pos.x - 1 : piece->pos.x + 1;
+		pieceToSwap->pos.x = move.x < colSelected ? piece->pos.x - 1 : piece->pos.x + 1;
 
-		piece->currentCell = (*cells)[piece->pos.y][piece->pos.x];
+		pieceToSwap->currentCell = (*cells)[pieceToSwap->pos.y][pieceToSwap->pos.x];
 		(*cells)[move.y][move.x]->SetPiece(nullptr);
-		(*cells)[piece->pos.y][piece->pos.x]->SetPiece(piece);
+		(*cells)[pieceToSwap->pos.y][pieceToSwap->pos.x]->SetPiece(pieceToSwap);
 	}
 
 	piece->pos = sf::Vector2i(column, move.y);
